@@ -43,6 +43,21 @@ def runserver():
     # load_app().run()
     # manage()
     pass
+<<<<<<< HEAD:website/manage.py
+=======
+
+
+@manage.command()
+def migrate():
+    """Synchronize Database."""
+    pass
+
+
+@manage.command()
+def help():
+    """Show Default Command Only."""
+    pass
+>>>>>>> 1-as-a-merchant-i-would-like-to-login-register-on-web-based-application:website/manage.py
 
 
 @manage.command()
@@ -86,3 +101,7 @@ if __name__ == "__main__":
             "forget to activate a virtual environment?"
         ) from exc
     execute_from_command_line(sys.argv)
+<<<<<<< HEAD:website/manage.py
+=======
+    manage()
+>>>>>>> 1-as-a-merchant-i-would-like-to-login-register-on-web-based-application:website/manage.py

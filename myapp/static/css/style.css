@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Custom Stylesheet */
 /**
  * Use this file to override Materialize files so you can update
@@ -55,3 +56,18 @@ p {
 footer.page-footer {
   margin: 0;
 }
+=======
+#logo {
+  font-family: 'Berkshire Swash';
+  width: 150;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  font-family: 'open sans'; 
+  font-size: 12px;
+
+}
+>>>>>>> 1-as-a-merchant-i-would-like-to-login-register-on-web-based-application
