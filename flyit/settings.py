@@ -25,7 +25,7 @@ SECRET_KEY = os.environ['DJANGO_API_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['halonesia.herokuapp.com']
+ALLOWED_HOSTS = ['localhost', 'halonesia.herokuapp.com']
 
 
 # Application definition
@@ -131,6 +131,6 @@ USE_TZ = True
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'myapp/static')
 STATIC_URL = '/static/'
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static/'),
-# )
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'myapp/static/'),
+)
