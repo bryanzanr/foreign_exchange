@@ -64,7 +64,7 @@ def loggedin(request):
     if request.method == 'POST':
         email = request.POST.get('email', '')
         password = request.POST.get('password', '')
-        arr = json.load(open('website/myapp/static/text/user.txt'))
+        arr = json.load(open('static/text/user.txt'))
         if email in arr['email']:
             temp = hashlib.sha1(password.encode('UTF8'))
             if temp.hexdigest() in arr['password']:
