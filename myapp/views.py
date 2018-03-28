@@ -85,14 +85,14 @@ def registered(request):
         if password == repeat_password:
             password = hashlib.sha1(password.encode('UTF8'))
             password = password.hexdigest()
-            arr = json.load(open('website/myapp/static/text/user.txt'))
+            arr = json.load(open('static/text/user.txt'))
             arr['email'].append(email)
             arr['password'].append(password)
             arr['first_name'].append(first_name)
             arr['last_name'].append(last_name)
             arr['merchant_name'].append(merchant_name)
             print(arr)
-            location = 'website/myapp/static/text/user.txt'
+            location = 'static/text/user.txt'
             with open(location, 'w') as file:
                 file.write(json.dumps(arr))
             user = {"user": arr}
