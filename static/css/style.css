@@ -1,0 +1,13 @@
+#logo {
+  font-family: 'Berkshire Swash';
+  width: 150;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  font-family: 'open sans'; 
+  font-size: 12px;
+
+}
