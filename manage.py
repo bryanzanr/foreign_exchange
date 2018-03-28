@@ -58,6 +58,12 @@ def help():
 
 
 @manage.command()
+def collectstatic():
+    """Show Default Command Only."""
+    pass
+
+
+@manage.command()
 def test():
     """Run the tests."""
     # Environment variable MUST be set before importing the app
