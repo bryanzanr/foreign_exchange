@@ -64,7 +64,7 @@ def loggedin(request):
     if request.method == 'POST':
         email = request.POST.get('email', '')
         password = request.POST.get('password', '')
-        arr = json.load(open('static/text/user.txt'))
+        arr = json.loads(requests.get(os.environ['DOMAIN'] + '/static/text/user.txt').content.decode())
         if email in arr['email']:
             temp = hashlib.sha1(password.encode('UTF8'))
             if temp.hexdigest() in arr['password']:
@@ -85,15 +85,15 @@ def registered(request):
         if password == repeat_password:
             password = hashlib.sha1(password.encode('UTF8'))
             password = password.hexdigest()
-            arr = json.load(open('static/text/user.txt'))
+            arr = json.loads(requests.get(os.environ['DOMAIN'] + '/static/text/user.txt').content.decode())
             arr['email'].append(email)
             arr['password'].append(password)
             arr['first_name'].append(first_name)
             arr['last_name'].append(last_name)
             arr['merchant_name'].append(merchant_name)
             print(arr)
-            location = 'static/text/user.txt'
-            with open(location, 'w') as file:
+            location = os.environ['DOMAIN'] + '/static/text/user.txt'
+            with requests.get(location, 'w') as file:
                 file.write(json.dumps(arr))
             user = {"user": arr}
             data = json.dumps(user)
