@@ -92,9 +92,10 @@ def registered(request):
             arr['last_name'].append(last_name)
             arr['merchant_name'].append(merchant_name)
             print(arr)
+            data = json.dumps(arr)
+            headers = {'Content-type': 'application/json'}
             location = os.environ['DOMAIN'] + '/static/text/user.txt'
-            with requests.get(location, 'w') as file:
-                file.write(json.dumps(arr))
+            req_change = requests.put(location, data=data, headers=headers)
             user = {"user": arr}
             data = json.dumps(user)
             headers = {'Content-type': 'application/json'}
