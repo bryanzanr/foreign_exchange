@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+# import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,8 +25,11 @@ SECRET_KEY = os.environ['DJANGO_API_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True
 
-ALLOWED_HOSTS = ['localhost', 'halonesia.herokuapp.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'halonesia.herokuapp.com', 'flyit.arsyady.com']
 
 
 # Application definition
@@ -36,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles', 'myapp',
+    'django.contrib.staticfiles',
+    'myapp',
 ]
 
 MIDDLEWARE = [
@@ -75,15 +80,16 @@ WSGI_APPLICATION = 'flyit.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+# DATABASES = {'default': dj_database_url.config()}
 DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '12345',
-        'HOST': '127.0.0.1',
+        'NAME': os.environ['DB_NAME'],
+        'USER': os.environ['DB_USER'],
+        'PASSWORD': os.environ['DB_PASS'],
+        'HOST': os.environ['DB_HOST'],
         # 'HOST': '0.0.0.0',
         'PORT': os.environ['PORT'],
     }
@@ -132,6 +138,13 @@ USE_TZ = True
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'myapp/static'),
-)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "myapp/static"),
+    # '/var/www/static/',
+]
+
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler', ]
+
+# Activate Django-Heroku.
+# django_heroku.settings(locals())

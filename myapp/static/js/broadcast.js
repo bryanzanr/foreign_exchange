@@ -10,6 +10,7 @@
 $(document).ready(function(){
   $('.sidenav').sidenav();
   M.updateTextFields();
-  $('textarea#desc').characterCounter();
+  $('textarea#id_desc').characterCounter();
+  $('input#id_title').characterCounter();
   $('select').formSelect();
 });

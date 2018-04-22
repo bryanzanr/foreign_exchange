@@ -1,38 +1,52 @@
+# from django.shortcuts import redirect
 import requests
 import json
-import time
+import os
 
 
-def get_server_data():
-    req = requests.get('https://api.myjson.com/bins/rr49j')
-    req_status = req.content.decode()
-    status = json.loads(req_status)
-    # parsed_status = status.get("status")
-    return status
-
-
-def change_server_status():
-    param = {"status": False, "image": ""}
-    data = json.dumps(param)
+def main(temp):
+    arr = []
+    # line = json.load(open('website/myapp/static/text/image.txt'))
+    # for i in range(len(line)):
+    #     image.append(line[i]['link'])
+    #     author.append(line[i]['user'])
+    title = [li['title'] for li in temp]
+    desc = [li['description'] for li in temp]
+    image = []
+    latitude = [li['lat'] for li in temp]
+    longitude = [li['long'] for li in temp]
+    author = [li['author'] for li in temp]
+    publish = [li['publish'] for li in temp]
+    for li in temp:
+        try:
+            image.append(li['img'])
+        except KeyError:
+            image.append('')
+        # try:
+        #     latitude.append(li['lat'])
+        #     longitude.append(li['long'])
+        # except KeyError:
+        #     latitude.append('')
+        #     longitude.append('')
+    for i in range(len(image)):
+        param = {"title": title[i], "description": desc[i],
+                 "image": image[i], "author": author[i], "publish": publish[i],
+                 "lat": latitude[i], "long": longitude[i]}
+        arr.append(param)
+    ads = {"advertisements": arr}
+    data = json.dumps(ads)
     headers = {'Content-type': 'application/json'}
-    link = 'https://api.myjson.com/bins/rr49j'
-    requests.put(link, data=data, headers=headers)
-    print(">> change server status complete")
+    link = 'https://api.myjson.com/bins/' + os.environ['JSON_API_ID']
+    try:
+        # req_change = requests.put(link, data=data, headers=headers)
+        requests.put(link, data=data, headers=headers)
+    except ConnectionError:
+        # return redirect('response/', {'no_record_check': 0})
+        return False
+    # print(req_change.content.decode())
+    # print(">> change server status complete")
+    return True
 
 
-def main():
-    # main method
-    while(True):
-        status = get_server_data().get("status")
-        # image_url = get_server_data().get("image")
-        if(status is True):
-            print("status is true, downloading image")
-            print("download complete")
-            change_server_status()
-        else:
-            print("status is false, re-looping")
-            time.sleep(2)
-
-
-if __name__ == '__main__':
-    main()
+# if __name__ == "__main__":
+#     main()

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <link href="{% static 'css/material.css' %}" rel="stylesheet">
+        <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="{% static 'css/flyit.css' %}"  media="screen,projection"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        {% block extra_styles %}
+        {% endblock %}
+        <title>{{title}}</title>
+    </head>
+    <body>
+        {% include 'myapp/template/header.html/' %}
+        {% block header %}
+        {% endblock %}
+        <ul id="slide-out" class="sidenav">
+            <li><div class="user-view">
+                <div class="background grey">
+                    <!-- <img src="{% static 'image/coba.jpeg' %}"> -->
+                </div>
+                <a href="#!user">
+                    {% if profile_picture != "" %}
+                    <img class="circle white" src="{{ profile_picture }}">
+                    {% else %}
+                    <img class="circle white">
+                    {% endif %}
+                </a>
+                <a href="#!name"><span class="white-text name">{{name}}</span></a>
+                <a href="#!email"><span class="white-text email">{{username}}</span></a>
+            </div></li>
+            {% block navmenu %}
+            {% endblock %}
+            <li><div class="divider"></div></li>
+            <li><a class="waves-effect" href="/myapp/logout/"><i class="material-icons">subdirectory_arrow_left</i>Logout</a></li>
+        </ul>
+        {% block content %}
+        {% endblock %}
+        {% block footer %}
+        {% endblock %}
+        {% include 'myapp/template/footer.html/' %}
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+        <script type="text/javascript" src="{% static 'js/init.js' %}"></script>
+        {% block script %}
+        {% endblock %}
+    </body>
+</html>

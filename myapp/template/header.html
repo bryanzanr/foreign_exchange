@@ -1,40 +1,12 @@
 <!DOCTYPE html>
-{% load static %}
-    <html>
-        <head>
-            <link href="{% static 'css/material.css' %}" rel="stylesheet">
-            <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}"  media="screen,projection"/>
-            <link type="text/css" rel="stylesheet" href="{% static 'css/header.css' %}"  media="screen,projection"/>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        </head>
-        <body>
+            {% block header %}
             <nav class="light-blue lighten-1" role="navigation">
                 <div class="nav-wrapper">
-                    <a href="#" class="right s2 brand-logo">fly-it</a>
+                    <a href="#" class="right s2 brand-logo">{{merchant_name}}</a>
                     <a href="#" data-target="slide-out" class="s1 sidenav-trigger"><i class="material-icons">menu</i></a>
-                    <ul id="nav-mobile" class="right hide-on-med-and-down">        
+                    <ul id="nav-mobile" class="right hide-on-med-and-down">
                     </ul>
                 </div>
             </nav>
-            <ul id="slide-out" class="sidenav">
-                <li><div class="user-view">
-                    <div class="background grey">
-                    </div>
-                    <a href="#!user"><img class="circle white"></a>
-                    <a href="#!name"><span class="white-text name">John Doe</span></a>
-                    <a href="#!email"><span class="white-text email">jdandturk@gmail.com</span></a>
-                </div></li>
-                <li><a href="/myapp/broadcast/"><i class="material-icons">send</i>Broadcast</a></li>
-                <li><a href="#"><i class="material-icons">history</i>History</a></li>
-                <li><a href="#"><i class="material-icons">show_chart</i>Statistics</a></li>
-                <li><a href="#"><i class="material-icons">chat</i>Chat</a></li>
-                <li><a href="#!"><i class="material-icons">account_box</i>My Profile</a></li>
-                <li><div class="divider"></div></li>
-                <li><a class="waves-effect" href="#!"><i class="material-icons">subdirectory_arrow_left</i>Logout</a></li>
-            </ul>
-            <script src="{% static 'js/jquery-3.2.1.js' %}"></script>
-            <script type="text/javascript" src="{% static 'js/init.js' %}"></script>
-            <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
-            <script type="text/javascript" src="{% static 'js/header.js' %}"></script>
-        </body>
-    </html>
+            {% endblock %}
+            

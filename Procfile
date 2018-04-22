@@ -1,2 +1,2 @@
 migrate: bash deployment.sh
-web: gunicorn flyit.wsgi --log-file -
+web: waitress-serve --port=$PORT flyit.wsgi:application

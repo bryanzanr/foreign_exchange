@@ -1,5 +1,5 @@
 from django import forms
-from .models import Register, Login
+from .models import Register, Login, Ads
 
 
 class RegisterForm(forms.ModelForm):
@@ -35,3 +35,17 @@ class LoginForm(forms.ModelForm):
         self.fields['email'].required = True
         self.fields['password'].required = True
         self.fields['password'].widget.attrs['required'] = 'required'
+
+
+class AdsForm(forms.ModelForm):
+
+    class Meta:
+        model = Ads
+        fields = ('title', 'desc', 'address', 'latitude', 'longitude', 'img')
+        # fields = ('title', 'desc', 'fileUpload')
+    title = forms.CharField(label='Title', required=True, max_length=100)
+    desc = forms.CharField(label='Description', required=True, max_length=300)
+    address = forms.CharField(label='Address', required=False, max_length=45)
+    latitude = forms.CharField(label='Latitude', required=False, max_length=30)
+    longitude = forms.CharField(label='Longitude', required=False, max_length=30)
+    img = forms.URLField(label='Image', required=False)

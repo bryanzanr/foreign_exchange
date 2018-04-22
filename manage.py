@@ -8,7 +8,7 @@ import subprocess
 
 import click
 # from dotenv import load_dotenv
-import pytest
+# import pytest
 
 # def load_app():
 #     # Environment variable MUST be set before importing the app
@@ -52,6 +52,12 @@ def migrate():
 
 
 @manage.command()
+def makemigrations():
+    """Merge Database."""
+    pass
+
+
+@manage.command()
 def help():
     """Show Default Command Only."""
     pass
@@ -65,18 +71,19 @@ def collectstatic():
 
 @manage.command()
 def test():
+    pass
     """Run the tests."""
     # Environment variable MUST be set before importing the app
     # dotenv_path = join(dirname(__file__), 'tests', '.env')
     # load_dotenv(dotenv_path)
 
-    sys.exit(pytest.main([]))
+    # sys.exit(pytest.main([]))
 
 
-@manage.command()
-def lint():
-    """Run the linters."""
-    sys.exit(subprocess.call(['flake8']))
+# @manage.command()
+# def lint():
+#     """Run the linters."""
+#     sys.exit(subprocess.call(['flake8']))
 
 
 @manage.command()
