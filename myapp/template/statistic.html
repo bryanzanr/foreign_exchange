@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+{% extends 'myapp/template/base.html/' %}
+{% load static %}
+        {% block extra_styles %}
+        <link type="text/css" rel="stylesheet" href="{% static 'css/header.css' %}"  media="screen,projection"/>
+        <link rel="stylesheet" href="{% static 'css/datatables.min.css' %}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        {% endblock %}
+            {% block navmenu %}
+            <li><a href="/myapp/broadcast/"><i class="material-icons">send</i>Broadcast</a></li>
+            <li><a href="#"><i class="material-icons">history</i>History</a></li>
+            <li class="active"><a href="/myapp/statistic"><i class="material-icons">show_chart</i>Statistics</a></li>
+            <li><a href="#"><i class="material-icons">chat</i>Chat</a></li>
+            <li><a href="/myapp/profile"><i class="material-icons">account_box</i>My Profile</a></li>
+            {% endblock %}
+        {% block content %}
+        <div class="container">  
+            <canvas id="myChart"> </canvas>    
+            <div style="width:90%; margin:0 auto;">    
+                <table id="table_id" class="display" cellspacing="0" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Published Date</th>
+                        <th>Image Link</th> 
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Author</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in ads %}
+                        <tr>
+                            <td>{{ v.title }}</td>
+                            <td>{{ v.description }}</td>
+                            <td>{{ v.publish }}</td>
+                            <td>{{ v.image }}</td>
+                            <td>{{ v.lat }}</td>
+                            <td>{{ v.long }}</td>
+                            <td>{{ v.author }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endblock %}
+        {% block script %}
+        <script type="text/javascript" src="{% static 'js/Chart.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/datatables.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/statistic.js' %}"></script>
+        {% endblock %}

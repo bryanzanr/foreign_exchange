@@ -1,11 +1,10 @@
 from django.shortcuts import redirect, render, render_to_response
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, ProfileForm, AdsForm
 
 import hashlib
 import json
 import os
 import requests
-# from django.http import HttpResponseRedirect
 from django.utils.datastructures import MultiValueDictKeyError
 
 # Create your views here.
@@ -15,19 +14,17 @@ from django.utils import timezone
 
 # from django.urls import reverse
 from . import broadcast as tb
+from . import email as eb
 
 # from .models import User
 # from .models import Ads
-from .forms import AdsForm
 # from django.shortcuts import render
 from imgurpython import ImgurClient
 from imgurpython.helpers.error import ImgurClientError
 from imgurpython.helpers.error import ImgurClientRateLimitError
 # from django.core.context_processors import csrf
 
-
-# def hello(request):
-#     return render(request, "myapp/template/hello.html", {})
+# from django.core.mail import send_mail
 
 
 def register(request):
@@ -42,10 +39,6 @@ def register(request):
     return render(request, "myapp/template/register.html", {'form': form})
 
 
-# def header(request):
-#     return render(request, "myapp/template/header.html", {})
-
-
 def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -56,24 +49,6 @@ def login(request):
     else:
         form = LoginForm()
     return render(request, "myapp/template/login.html", {'form': form})
-
-
-# def footer(request):
-#     return render(request, "myapp/template/footer.html", {})
-
-# def auth_view(request):
-    # if request.method == 'POST':
-    # email = request.POST.get('email', '')
-    # password = request.POST.get('password', '')
-    # request.session['email'] = email
-    # return HttpResponseRedirect('/myapp/loggedin/')
-    # user = auth.authenticate(username=email, password=password)
-
-    # if user is not None:
-    # 	auth.login(request, user)
-    # 	return HttpResponseRedirect('/loggedin')
-    # else:
-    # 	return HttpResponseRedirect('/invalid')
 
 
 def loggedin(request):
@@ -92,12 +67,12 @@ def loggedin(request):
                 if temp.hexdigest() == arr[i]['password']:
                     request.session['email'] = email
                     data = get_user_data(arr, email)
-                    url = 'myapp/template/broadcast.html'
+                    url = '/myapp/broadcast/'
                     page_title = 'Broadcast'
-                    return render(request, url, {'username': email, 'title': page_title,
-                                                 'name': data['name'],
-                                                 'merchant_name': data['merchant_name'],
-                                                 'profile_picture': data['profile_picture']})
+                    return redirect(url, {'username': email, 'title': page_title,
+                                          'name': data['name'],
+                                          'merchant_name': data['merchant_name'],
+                                          'profile_picture': data['profile_picture']})
     return redirect('login')
 
 
@@ -111,8 +86,6 @@ def registered(request):
         repeat_password = request.POST.get('repeat_password', '')
         profile_picture = ""
         if password == repeat_password:
-            # email = hashlib.sha1(email.encode('UTF8'))
-            # email = email.hexdigest()
             password = hashlib.sha1(password.encode('UTF8'))
             password = password.hexdigest()
             try:
@@ -128,30 +101,19 @@ def registered(request):
             arr['last_name'] = last_name
             arr['merchant_name'] = merchant_name
             arr['profile_picture'] = profile_picture
-            print(arr)
-            # headers = {'Content-type': 'application/json'}
-            # data = json.dumps(arr)
-            # location = os.environ['DOMAIN'] + '/static/text/user.txt'
-            # req_change = requests.put(location, data=data, headers=headers)
             temp.append(arr)
-            user = {"user": temp}
-            data = json.dumps(user)
-            headers = {'Content-type': 'application/json'}
-            link = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
-            try:
-                req_change = requests.put(link, data=data, headers=headers)
-            except ConnectionError:
-                return redirect('response/', {'no_record_check': 0})
-            print(req_change.content.decode())
-            print(">> change server status complete")
+            eb.main(temp, email)
             request.session['email'] = email
-            url = 'myapp/template/broadcast.html'
+            eb.main(temp, email)
+            # send_mail('Subject here', 'Here is the message.',
+            # 'from@example.com', ['to@example.com'], fail_silently=False)
+            url = '/myapp/broadcast/'
             page_title = 'Broadcast'
             name = first_name + ' ' + last_name
-            return render_to_response(url, {'username': request.session['email'],
-                                            'title': page_title, 'name': name,
-                                            'merchant_name': merchant_name,
-                                            'profile_picture': profile_picture})
+            return redirect(url, {'username': request.session['email'],
+                                  'title': page_title, 'name': name,
+                                  'merchant_name': merchant_name,
+                                  'profile_picture': profile_picture})
         else:
             return redirect('register')
     else:
@@ -163,48 +125,8 @@ def invalid_login(request):
 
 
 def logout(request):
+    del request.session['email']
     return render(request, "myapp/template/logout.html", {})
-
-
-# def maps(request):
-#     return render(request, "myapp/template/maps.html", {})
-
-
-# def send(request):
-#     if request.is_ajax():
-#         # extract your params (also, remember to validate them)
-#         param = request.POST.get('param', None)
-#         another_param = request.POST.get('another param', None)
-
-#         # construct your JSON response by calling a data method from elsewhere
-#         items, summary = build_my_response(param, another_param)
-
-#         return JsonResponse({'result': 'OK', 'data': {'items': items, 'summary': summary}})
-#     return HttpResponseBadRequest()
-
-
-# def location(request):
-#     if request.method == 'POST':
-#         address = request.POST.get('address', '')
-#         request.session['address'] = address
-#     temp = 'myapp/template/hello.html'
-#     return render_to_response(temp, {'address': request.session['address']})
-
-
-# class HomeView(generic.ListView):
-#     # name of the object to be used in the index.html
-#     context_object_name = 'user_list'
-#     template_name = 'myapp/template/uploadfileapp/home_page.html'
-
-#     def get_queryset(self):
-#         return User.objects.all()
-
-
-# # view for the user entry page
-# class UserEntry(CreateView):
-#     model = User
-#     fields = ['user_name', 'user_avatar']
-#     template_name = 'myapp/template/uploadfileapp/user_form.html'
 
 
 def upload_image(img):
@@ -213,12 +135,8 @@ def upload_image(img):
     client = ImgurClient(imgur_id, imgur_key)
     try:
         response = client.upload_from_path(img, config=None, anon=True)
-    except ConnectionError:
-        return redirect('response/', {'no_record_check': 0})
-    except ImgurClientError:
-        return redirect('response/', {'no_record_check': 0})
-    except ImgurClientRateLimitError:
-        return redirect('response/', {'no_record_check': 0})
+    except (ConnectionError, ImgurClientError, ImgurClientRateLimitError) as e:
+        return 'Error'
     # print(response)
     return response['link']
 
@@ -227,8 +145,11 @@ def mutate(request, item):
     mutable = request.POST._mutable
     request.POST._mutable = True
     link = upload_image(item)
+    if link == 'Error':
+        return False
     request.POST['img'] = link
     request.POST._mutable = mutable
+    return True
 
 
 def create_ad_dict(form, ads):
@@ -239,6 +160,7 @@ def create_ad_dict(form, ads):
     temp['publish'] = str(ads.published_date)
     temp['lat'] = form.data['latitude']
     temp['long'] = form.data['longitude']
+    temp['tag'] = form.data['tag']
     try:
         temp['img'] = form.data['img']
     except MultiValueDictKeyError:
@@ -260,7 +182,8 @@ def broadcast(request):
         except MultiValueDictKeyError:
             pass
         else:
-            mutate(request, img)
+            if not mutate(request, img):
+                return redirect('response/', {'no_record_check': 0})
         # print(form.data)
         if form.is_valid():
             # process the data in form.cleaned_data as required
@@ -288,7 +211,7 @@ def broadcast(request):
     page_title = 'Broadcast'
     user_data = get_user_data(user_arr, tmp)
     if user_data['name'] == '':
-        redirect(register)
+        return redirect(register)
     return render(request, temp, {'form': form, 'username': tmp, 'title': page_title,
                                   'name': user_data['name'],
                                   'merchant_name': user_data['merchant_name'],
@@ -297,10 +220,6 @@ def broadcast(request):
 
 def index(request):
     return render(request, "myapp/template/index.html", {})
-
-
-# def upload(request):
-#     return render(request, "myapp/template/uploadfileapp/user_form.html", {})
 
 
 def get_user_data(arr, email):
@@ -322,3 +241,126 @@ def get_user_data(arr, email):
             user_data['profile_picture'] = ''
             user_data['email'] = ''
     return user_data
+
+
+def show_profile(request):
+    url = "myapp/template/profile.html"
+    page_title = 'My Profile'
+    temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    arr = json.loads(requests.get(temp).content.decode())
+    arr = arr['user']
+    tmp = ''
+    try:
+        tmp = request.session['email']
+    except KeyError:
+        pass
+    user_data = get_user_data(arr, tmp)
+    if user_data['name'] == '':
+        return redirect('/myapp/register/')
+    return render(request, url, {'username': tmp, 'name': user_data['name'],
+                                 'title': page_title,
+                                 'first_name': user_data['first_name'],
+                                 'last_name': user_data['last_name'],
+                                 'merchant_name': user_data['merchant_name'],
+                                 'email': user_data['email'],
+                                 'profile_picture': user_data['profile_picture']})
+
+
+def edit_data(arr, request, form):
+    for i, v in enumerate(arr['user']):
+        if v['email'] == request.session['email']:
+            arr['user'][i]['first_name'] = form.data['first_name']
+            arr['user'][i]['last_name'] = form.data['last_name']
+            arr['user'][i]['merchant_name'] = form.data['merchant_name']
+            try:
+                temppath = request.FILES['profpic'].temporary_file_path()
+                link = upload_image(temppath)
+                arr['user'][i]['profile_picture'] = link
+            except (MultiValueDictKeyError, KeyError) as e:
+                arr['user'][i]['profile_picture'] = ''
+            break
+    return arr
+
+
+def edit_profile(request):
+    temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    arr = json.loads(requests.get(temp).content.decode())
+    if request.method == 'POST':
+        form = ProfileForm(request.POST)
+        if form.is_valid():
+            arr = edit_data(arr, request, form)
+            jsondata = json.dumps(arr)
+            headers = {'Content-type': 'application/json'}
+            try:
+                req_change = requests.put(temp, data=jsondata, headers=headers)
+            except ConnectionError:
+                return redirect('response/', {'no_record_check': 0})
+            print(req_change.content.decode())
+            # print(">> change server status complete")
+            return redirect('edit_success')
+    else:
+        arr = arr['user']
+        form = ProfileForm()
+        try:
+            tmp = request.session['email']
+        except KeyError:
+            tmp = ''
+        user_data = get_user_data(arr, tmp)
+        if user_data['name'] == '':
+            return redirect('/myapp/register/')
+        url = "myapp/template/editProfile.html"
+        page_title = 'Edit Profile'
+        return render(request, url, {'form': form, 'username': tmp,
+                                     'name': user_data['name'], 'title': page_title,
+                                     'first_name': user_data['first_name'],
+                                     'last_name': user_data['last_name'],
+                                     'merchant_name': user_data['merchant_name'],
+                                     'profile_picture': user_data['profile_picture']})
+
+
+def edit_success(request):
+    url = "myapp/template/editSuccess.html"
+    page_title = 'Edit Success!'
+    temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    arr = json.loads(requests.get(temp).content.decode())
+    arr = arr['user']
+    tmp = ''
+    try:
+        tmp = request.session['email']
+    except KeyError:
+        pass
+    temp = get_user_data(arr, tmp)
+    if temp['name'] == '':
+        return redirect('/myapp/register/')
+    return render(request, url, {'username': tmp, 'name': temp['name'], 'title': page_title,
+                                 'first_name': temp['first_name'],
+                                 'last_name': temp['last_name'],
+                                 'merchant_name': temp['merchant_name'],
+                                 'profile_picture': temp['profile_picture']})
+
+
+def statistic(request):
+    # queryset = Ads.objects.all()
+    temp = 'https://api.myjson.com/bins/' + os.environ['JSON_API_ID']
+    arr = json.loads(requests.get(temp).content.decode())
+    arr = arr['advertisements']
+    tmp = []
+    username = request.session['email']
+    for v in arr:
+        if v['author'] == username:
+            tmp.append(v)
+    print(tmp)
+    temp1 = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    arr1 = json.loads(requests.get(temp1).content.decode())
+    arr1 = arr1['user']
+    temp = get_user_data(arr1, username)
+    page_title = "Statistics"
+    url = "myapp/template/statistic.html"
+    return render(request, url, {'username': username, 'name': temp['name'],
+                                 'title': page_title,
+                                 'first_name': temp['first_name'],
+                                 'last_name': temp['last_name'],
+                                 'merchant_name': temp['merchant_name'],
+                                 'profile_picture': temp['profile_picture'], 'ads': tmp})
+# def upload(request):
+#     return render(request, "myapp/template/uploadfileapp/user_form.html", {})

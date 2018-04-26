@@ -41,11 +41,29 @@ class AdsForm(forms.ModelForm):
 
     class Meta:
         model = Ads
-        fields = ('title', 'desc', 'address', 'latitude', 'longitude', 'img')
-        # fields = ('title', 'desc', 'fileUpload')
+        fields = ('title', 'desc', 'address',
+                  'latitude', 'longitude', 'tag', 'img')
+
+    TAG_CHOICES = (
+        ('1', 'Food'),
+        ('2', 'Fashion'),
+        ('3', 'Lifestyle'),
+        ('4', 'Property'),
+    )
     title = forms.CharField(label='Title', required=True, max_length=100)
     desc = forms.CharField(label='Description', required=True, max_length=300)
     address = forms.CharField(label='Address', required=False, max_length=45)
     latitude = forms.CharField(label='Latitude', required=False, max_length=30)
-    longitude = forms.CharField(label='Longitude', required=False, max_length=30)
+    longitude = forms.CharField(
+        label='Longitude', required=False, max_length=30)
+    tag = forms.CharField(label='Tag', required=False, widget=forms.Select(
+        choices=TAG_CHOICES), max_length=2)
     img = forms.URLField(label='Image', required=False)
+
+
+class ProfileForm(forms.Form):
+
+    first_name = forms.CharField(label='First Name', required=True, max_length=100)
+    last_name = forms.CharField(label='Last Name', required=True, max_length=100)
+    merchant_name = forms.CharField(label='Merchant Name', required=True, max_length=100)
+    # profile_picture = forms.ImageField(label='Image', required=False)

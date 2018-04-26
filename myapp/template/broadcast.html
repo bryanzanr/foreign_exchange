@@ -13,7 +13,7 @@
             {% block navmenu %}
             <li class="active"><a href="/myapp/broadcast/"><i class="material-icons">send</i>Broadcast</a></li>
             <li><a href="#"><i class="material-icons">history</i>History</a></li>
-            <li><a href="#"><i class="material-icons">show_chart</i>Statistics</a></li>
+            <li><a href="/myapp/statistic"><i class="material-icons">show_chart</i>Statistics</a></li>
             <li><a href="#"><i class="material-icons">chat</i>Chat</a></li>
             <li><a href="/myapp/profile"><i class="material-icons">account_box</i>My Profile</a></li>
             {% endblock %}
@@ -68,13 +68,26 @@
                     </div>
                     <div class="divider"></div>
                     <div class="row">
+                        <div class="input-field col s12">
+                            <select name="{{ form.tag.name }}" id="{{ form.tag.id_for_label }}">
+                                <option value="" disabled selected>Choose your tag</option>
+                                <option value="1">Food</option>
+                                <option value="2">Fashion</option>
+                                <option value="3">Lifestyle</option>
+                                <option value="4">Property</option>
+                            </select>
+                            <label for="{{ form.tag.id_for_label }}">Tag</label>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="row">
                         <div class="file-field input-field">
                             <div class="btn">
                                 <span>Picture</span>
                                 <input name="fileupload" type="file" id="fileupload" accept="image/*" data-max-size="5000" onchange="return ValidateFileUpload()">
                             </div>
                             <div class="file-path-wrapper">
-                                <input name="{{ form.img.name }}" id="{{ form.img.id_for_label }}" id="filepath" class="file-path validate" type="text">
+                                <input name="{{ form.img.name }}" id="{{ form.img.id_for_label }}" class="file-path validate" type="text">
                             </div>
                         </div>
                     </div>

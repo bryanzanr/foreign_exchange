@@ -1,6 +1,6 @@
 # from django.shortcuts import redirect
 import requests
-import json
+# import json
 import os
 
 
@@ -17,6 +17,7 @@ def main(temp):
     longitude = [li['long'] for li in temp]
     author = [li['author'] for li in temp]
     publish = [li['publish'] for li in temp]
+    tag = [li['tag'] for li in temp]
     for li in temp:
         try:
             image.append(li['img'])
@@ -31,15 +32,14 @@ def main(temp):
     for i in range(len(image)):
         param = {"title": title[i], "description": desc[i],
                  "image": image[i], "author": author[i], "publish": publish[i],
-                 "lat": latitude[i], "long": longitude[i]}
+                 "lat": latitude[i], "long": longitude[i], "tag": tag[i]}
         arr.append(param)
     ads = {"advertisements": arr}
-    data = json.dumps(ads)
-    headers = {'Content-type': 'application/json'}
+    # data = json.dumps(ads)
     link = 'https://api.myjson.com/bins/' + os.environ['JSON_API_ID']
     try:
         # req_change = requests.put(link, data=data, headers=headers)
-        requests.put(link, data=data, headers=headers)
+        requests.put(link, json=ads)
     except ConnectionError:
         # return redirect('response/', {'no_record_check': 0})
         return False

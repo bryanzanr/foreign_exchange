@@ -1,13 +1,11 @@
 from myapp.forms import RegisterForm, LoginForm
 from django.test import TestCase, Client, RequestFactory
 from django.conf import settings
-# from django.urls import resolve
 from django.urls import reverse
-# from django.http import HttpRequest
-from .views import register, login
+from .views import register, login, get_user_data
 from .models import Ads
 from .forms import AdsForm
-from . import broadcast as tb
+# from . import broadcast as tb
 import requests
 import json
 import os
@@ -84,9 +82,6 @@ class TestSession(object):
 
 class BroadcastTest(TestSession, TestCase):
 
-    # global_mock_test = mock.Mock()
-    # global_mock_test.side_effect = ConnectionError
-
     def test_myapp_url_is_exist(self):
         response = Client().get('/myapp/')
         self.assertEqual(response.status_code, 200)
@@ -105,9 +100,6 @@ class BroadcastTest(TestSession, TestCase):
         session['email'] = 'test@test.com'
         session.save()
         response = self.client.get('/myapp/broadcast/')
-        # html_response = response.content.decode('utf8')
-
-        # Checking whether all elements rendered
         self.assertTemplateUsed(response, 'myapp/template/broadcast.html')
 
     def test_broadcast_input_verified(self):
@@ -143,30 +135,89 @@ class BroadcastTest(TestSession, TestCase):
         self.assertTrue(result)
         mock_test.stop()
 
-    def create_test_ads(self):
+    def create_test_ads(self, img=''):
         temp = {}
         temp['title'] = 'Test'
-        temp['description'] = 'Test Ad'
-        temp['author'] = 'Django Test'
-        temp['publish'] = '2018-04-17 17:31:08.137604+00:00'
-        temp['lat'] = '0.000000000000000'
-        temp['long'] = '0.000000000000000'
-        temp['img'] = ''
+        temp['desc'] = 'Test Ad'
+        temp['latitude'] = '0.000000000000000'
+        temp['longitude'] = '0.000000000000000'
+        temp['fileupload'] = img
+        temp['tag'] = '1'
         return temp
 
-    def test_ads_send(self):
-        arr = self.get_ads()
-        temp = self.create_test_ads()
-        arr.append(temp)
-        self.assertEqual(tb.main(arr), True)
+    def test_ads_send_without_img(self):
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        # arr = self.get_ads()
+        # arr.append(temp)
+        request = self.client.post('/myapp/broadcast/', data=self.create_test_ads())
+        self.assertEqual(request.status_code, 302)
+
+    def test_ads_send_with_img(self):
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        img = open('static/image/coba.jpeg', 'rb')
+        # arr = self.get_ads()
+        # arr.append(temp)
+        request = self.client.post('/myapp/broadcast/', data=self.create_test_ads(img))
+        self.assertEqual(request.status_code, 302)
 
     @mock.patch('requests.put')
     def test_ads_not_send(self, mock):
         mock.side_effect = ConnectionError
-        arr = self.get_ads()
-        temp = self.create_test_ads()
-        arr.append(temp)
-        self.assertEqual(tb.main(arr), False)
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        # arr = self.get_ads()
+        # arr.append(temp)
+        request = self.client.post('/myapp/broadcast/', data=self.create_test_ads())
+        self.assertEqual(request.status_code, 302)
+
+    def test_send_ads_after_reset_database(self):
+        self.clear_arr()
+        mock_test = mock.patch.dict(os.environ, {'JSON_API_ID': '89axb'})
+        mock_test.start()
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        # arr = self.get_ads()
+        # arr.append(temp)
+        request = self.client.post('/myapp/broadcast/', data=self.create_test_ads())
+        mock_test.stop()
+        self.assertEqual(request.status_code, 302)
+
+    def test_not_logged_in(self):
+        self.create_session()
+        session = self.client.session
+        session['email'] = ''
+        session.save()
+        request = self.client.get('/myapp/broadcast/')
+        self.assertEqual(request.status_code, 302)
+
+    @mock.patch('imgurpython.ImgurClient.upload_from_path')
+    def test_ads_cannot_upload_image(self, mock):
+        mock.side_effect = ConnectionError
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        img = open('static/image/coba.jpeg', 'rb')
+        # arr = self.get_ads()
+        # arr.append(temp)
+        request = self.client.post('/myapp/broadcast/', data=self.create_test_ads(img))
+        self.assertEqual(request.status_code, 302)
+
+    def clear_arr(self):
+        temp = json.dumps({})
+        url = 'https://api.myjson.com/bins/89axb'
+        headers = {'Content-type': 'application/json'}
+        return requests.put(url, data=temp, headers=headers)
 
 
 class RegisterPageTest(TestCase):
@@ -195,7 +246,6 @@ class RegisterPageTest(TestCase):
             'password': 'test',
             'repeat_password': 'test'
         }
-        # self.assertRedirects(response, '/broadcast/', 302, 200)
         target = 'myapp.views.RegisterForm.is_valid'
         with mock.patch(target) as mock_register_form:
             mock_register_form.return_value = True
@@ -235,7 +285,6 @@ class LoginPageTest(TestCase):
             'email': 'test@test.com',
             'password': 'test'
         }
-        # self.assertRedirects(response, '/broadcast/', 302, 200)
         with mock.patch('myapp.views.LoginForm.is_valid') as mock_login_form:
             mock_login_form.return_value = True
             request = self.factory.post(reverse("login"), data=login_data)
@@ -250,64 +299,52 @@ class LoginPageTest(TestCase):
                              'email', ['This field is required.'])
 
 
-# class HeaderPageTest(TestCase):
-
-#     def test_myapp_url_is_exist(self):
-#         response = Client().get('/myapp/')
-#         self.assertEqual(response.status_code, 200)
-
-#     def test_header_url_is_exist(self):
-#         response = Client().get('/myapp/header/')
-#         self.assertEqual(response.status_code, 200)
-
-#     def test_header_page_is_completed(self):
-#         response = Client().get('/myapp/header/')
-#         self.assertTemplateUsed(response, 'myapp/template/header.html')
-
-
-# class FooterPageTest(TestCase):
-
-#     def test_myapp_url_is_exist(self):
-#         response = Client().get('/myapp/')
-#         self.assertEqual(response.status_code, 200)
-
-#     def test_footer_url_is_exist(self):
-#         response = Client().get('/myapp/footer/')
-#         self.assertEqual(response.status_code, 200)
-
-#     def test_footer_page_is_completed(self):
-#         response = Client().get('/myapp/footer/')
-#         self.assertTemplateUsed(response, 'myapp/template/footer.html')
-
-
-class LoggedinPageTest(TestCase):
+class LoggedinPageTest(TestSession, TestCase):
 
     def test_myapp_url_is_exist(self):
         response = Client().get('/myapp/')
         self.assertEqual(response.status_code, 200)
 
     def test_loggedin_url_is_exist(self):
-        response = Client().get('/myapp/loggedin/')
+        response = self.client.get('/myapp/loggedin/')
         self.assertEqual(response.status_code, 302)
 
     def test_loggedin_success(self):
-        # login_data = {
-        #     'email': 'test@test.com',
-        #     'password': 'test'
-        # }
-        # #self.assertRedirects(response, '/broadcast/', 302, 200)
-        # self.assertTemplateUsed(response, 'myapp/template/broadcast.html')
-        pass
+        login_data = {
+            'email': 'test@test.com',
+            'password': 'test'
+        }
+        request = self.client.post('/myapp/loggedin/', data=login_data, follow=True)
+        self.assertRedirects(request, '/myapp/broadcast/')
 
     def test_loggedin_fail(self):
-        pass
+        login_data = {
+            'email': '',
+            'password': ''
+        }
+        request = self.client.post('/myapp/loggedin/', data=login_data, follow=True)
+        self.assertRedirects(request, '/login/')
 
-    # def test_loggedin_page_is_completed(self):
-    #     response = Client().get('/myapp/loggedin/')
-    #     self.assertTemplateUsed(response, 'myapp/template/loggedin.html')
+    def test_loggedin_fail_password_not_equal(self):
+        login_data = {
+            'email': 'test@test.com',
+            'password': 'testt'
+        }
+        request = self.client.post('/myapp/loggedin/', data=login_data, follow=True)
+        self.assertRedirects(request, '/login/')
+
+    @mock.patch('requests.get')
+    def test_loggedin_key_error(self, mock):
+        mock.side_effect = KeyError
+        login_data = {
+            'email': 'test@test.com',
+            'password': 'test'
+        }
+        request = self.client.post('/myapp/loggedin/', data=login_data, follow=True)
+        self.assertRedirects(request, '/register/')
 
 
-class RegisteredPageTest(TestCase):
+class RegisteredPageTest(TestSession, TestCase):
 
     def test_myapp_url_is_exist(self):
         response = Client().get('/myapp/')
@@ -317,23 +354,87 @@ class RegisteredPageTest(TestCase):
         response = Client().get('/myapp/registered/')
         self.assertEqual(response.status_code, 302)
 
-    # def test_registered_page_is_completed(self):
-    #     response = Client().get('/myapp/registered/')
-    #     self.assertTemplateUsed(response, 'myapp/template/loggedin.html')
+    def test_registered_success(self):
+        register_data = {
+            'first_name': 'Test',
+            'last_name': 'Account',
+            'merchant_name': 'Test Merchant',
+            'email': 'test@test.com',
+            'password': 'test',
+            'repeat_password': 'test'
+        }
+        request = self.client.post('/myapp/registered/', data=register_data, follow=True)
+        self.assertRedirects(request, '/myapp/broadcast/')
+
+    def test_registered_fail(self):
+        register_data = {
+            'first_name': 'Test',
+            'last_name': 'Account',
+            'merchant_name': 'Test Merchant',
+            'email': 'test@test.com',
+            'password': 'test',
+            'repeat_password': 'testt'
+        }
+        request = self.client.post('/myapp/registered/', data=register_data, follow=True)
+        self.assertRedirects(request, '/register/')
+
+    @mock.patch('requests.put')
+    def test_registered_connection_error(self, mock):
+        mock.side_effect = ConnectionError
+        register_data = {
+            'first_name': 'Test',
+            'last_name': 'Account',
+            'merchant_name': 'Test Merchant',
+            'email': 'test@test.com',
+            'password': 'test',
+            'repeat_password': 'test'
+        }
+        request = self.client.post('/myapp/registered/', data=register_data)
+        self.assertRedirects(request, '/myapp/broadcast/')
+
+    def test_registered_key_error(self):
+        self.clear_ads()
+        mock_test = mock.patch.dict(os.environ, {'ARR_API_ID': '135p7z'})
+        mock_test.start()
+        register_data = {
+            'first_name': 'Test',
+            'last_name': 'Account',
+            'merchant_name': 'Test Merchant',
+            'email': 'test@test.com',
+            'password': 'test',
+            'repeat_password': 'test'
+        }
+        request = self.client.post('/myapp/registered/', data=register_data, follow=True)
+        self.assertRedirects(request, '/myapp/broadcast/')
+        mock_test.stop()
+
+    def clear_ads(self):
+        temp = json.dumps({})
+        url = 'https://api.myjson.com/bins/135p7z'
+        headers = {'Content-type': 'application/json'}
+        return requests.put(url, data=temp, headers=headers)
 
 
-class LogoutPageTest(TestCase):
+class LogoutPageTest(TestSession, TestCase):
 
     def test_myapp_url_is_exist(self):
         response = Client().get('/myapp/')
         self.assertEqual(response.status_code, 200)
 
     def test_logout_url_is_exist(self):
-        response = Client().get('/myapp/logout/')
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        response = self.client.get('/myapp/logout/')
         self.assertEqual(response.status_code, 200)
 
     def test_logout_page_is_completed(self):
-        response = Client().get('/myapp/logout/')
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        response = self.client.get('/myapp/logout/')
         self.assertTemplateUsed(response, 'myapp/template/logout.html')
 
 
@@ -365,3 +466,147 @@ class IndexPageIndex(TestCase):
     def test_index_page_is_completed(self):
         response = Client().get('/myapp/response/')
         self.assertTemplateUsed(response, 'myapp/template/index.html')
+
+
+class GetUserDataTest(TestCase):
+
+    def test_get_user_data_success(self):
+        user_temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+        user_arr = json.loads(requests.get(user_temp).content.decode())['user']
+        email = 'test@test.com'
+        user_data = {
+            'name': 'Test Account',
+            'first_name': 'Test',
+            'last_name': 'Account',
+            'merchant_name': 'test_merchant',
+            'profile_picture': '',
+            'email': 'test@test.com'
+        }
+        result = get_user_data(user_arr, email)
+        self.assertEqual(result['name'], user_data['name'])
+        self.assertEqual(result['first_name'], user_data['first_name'])
+        self.assertEqual(result['last_name'], user_data['last_name'])
+        self.assertEqual(result['merchant_name'], user_data['merchant_name'])
+        self.assertEqual(result['email'], user_data['email'])
+
+    def test_get_user_data_fail(self):
+        user_temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+        user_arr = json.loads(requests.get(user_temp).content.decode())['user']
+        email = 'failtest@test.com'
+        user_data = {
+            'name': '',
+            'first_name': '',
+            'last_name': '',
+            'merchant_name': '',
+            'profile_picture': '',
+            'email': ''
+        }
+        result = get_user_data(user_arr, email)
+        self.assertEqual(result['name'], user_data['name'])
+        self.assertEqual(result['first_name'], user_data['first_name'])
+        self.assertEqual(result['last_name'], user_data['last_name'])
+        self.assertEqual(result['merchant_name'], user_data['merchant_name'])
+        self.assertEqual(result['email'], user_data['email'])
+
+
+class ProfilePageTest(TestSession, TestCase):
+
+    def test_profile_page_is_exist(self):
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        response = self.client.get('/myapp/profile/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_page_redirects_if_not_signed_in(self):
+        self.create_session()
+        session = self.client.session
+        session.save()
+        response = self.client.get('/myapp/profile/')
+        self.assertEqual(response.status_code, 302)
+
+
+class EditProfileSuccessPageTest(TestSession, TestCase):
+
+    def test_edit_profile_success_page_is_exist(self):
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        response = self.client.get('/myapp/editSuccess/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_edit_profile_success_page_redirects_if_not_signed_in(self):
+        self.create_session()
+        session = self.client.session
+        session.save()
+        response = self.client.get('/myapp/editSuccess/')
+        self.assertEqual(response.status_code, 302)
+
+
+class EditProfilePageTest(TestSession, TestCase):
+
+    def create_profile(self, img=''):
+        user_data = {}
+        user_data['first_name'] = 'Test'
+        user_data['last_name'] = 'Account'
+        user_data['merchant_name'] = 'test_merchant'
+        user_data['profpic'] = img
+        return user_data
+
+    def test_edit_profile_page_is_exist(self):
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        response = self.client.get('/myapp/editProfile/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_edit_profile_page_redirects_if_not_signed_in(self):
+        self.create_session()
+        session = self.client.session
+        session.save()
+        response = self.client.get('/myapp/editProfile/')
+        self.assertEqual(response.status_code, 302)
+
+    def test_edit_profile_with_profpic(self):
+        img = open('static/image/coba.jpeg', 'rb')
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        response = self.client.post('/myapp/editProfile/', self.create_profile(img))
+        self.assertRedirects(response, '/editSuccess/')
+
+    def test_edit_profile_without_profpic(self):
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        response = self.client.post('/myapp/editProfile/', self.create_profile())
+        self.assertRedirects(response, '/editSuccess/')
+
+    @mock.patch('requests.put')
+    def test_connection_error(self, mock):
+        mock.side_effect = ConnectionError
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        response = self.client.post('/myapp/editProfile/', self.create_profile())
+        self.assertRedirects(response, '/myapp/editProfile/response/')
+
+
+class StatisticPageTest(TestSession, TestCase):
+
+    def test_get_statistic_success(self):
+        self.create_session()
+        session = self.client.session
+        session['email'] = 'test@test.com'
+        session.save()
+        url = reverse('statistic')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'myapp/template/statistic.html')
+        # self.assertEqual()

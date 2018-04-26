@@ -25,3 +25,32 @@
   .input-field .prefix.active {
   color: #000;
 }
+footer {
+    background-color: orange;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+}
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+  background-image: url("../image/login.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+}
+.card{
+  border-radius: 25px;;
+}
+.logo{
+  width : 250px;
+  margin-top: 20px;
+  padding-top: 1px;
+  margin-left: 30px;
+  background-color:rgba(192,192,192,0.3);
+  border-radius: 25px;
+}
