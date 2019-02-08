@@ -30,7 +30,7 @@ DEBUG = False
 # SECURE_SSL_REDIRECT = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost',
-                 'halonesia.herokuapp.com', 'flyit.arsyady.com']
+                 'fly-it.herokuapp.com', 'flyit.arsyady.com']
 
 
 # Application definition
