@@ -24,13 +24,13 @@ def main(arr, mail):
     print(response.body)
     print(response.headers)
 
-    user = {"user": arr}
     # data = json.dumps(user)
     # headers = {'Content-type': 'application/json'}
     # link = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
     # try:
     #     req_change = requests.put(link, data=data, headers=headers)
     # data = json.dumps(user)
+    user = {"user": arr}
     link = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
     try:
         req_change = requests.put(link, json=user)

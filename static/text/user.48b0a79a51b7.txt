@@ -1,0 +1,1 @@
+{"last_name": ["asd"], "password": ["f10e2821bbbea527ea02200352313bc059445190"], "email": ["asd@asd"], "first_name": ["asd"], "merchant_name": ["asd"]}
