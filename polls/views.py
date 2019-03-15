@@ -7,6 +7,10 @@ import os
 import requests
 
 from myapp import email as eb
+from django.utils.datastructures import MultiValueDictKeyError
+from imgurpython import ImgurClient
+from imgurpython.helpers.error import ImgurClientError
+from imgurpython.helpers.error import ImgurClientRateLimitError
 
 import jwt, datetime
 
@@ -46,7 +50,8 @@ def login(request):
                     # return HttpResponse(json.dumps(tmp))
                     tmp = jwt.encode(payload, os.environ["SECRET"]).decode('UTF8')
                     return JsonResponse({'auth': True, 'token': tmp}, status=200)
-    return JsonResponse("Failed to Login", status=404)
+        return JsonResponse({'auth': False, 'token': None}, status=200) 
+    return JsonResponse({'auth': False, 'message': "Failed to Login"}, status=404)
 
 def get_user_data(arr, email):
     user_data = {}
@@ -113,7 +118,9 @@ def register(request):
             payload['profile_picture'] = profile_picture
             return JsonResponse({'code': 200,'message': "User registered successfully", 
             'token': jwt.encode(payload, os.environ["SECRET"]).decode('UTF8')})
-    return JsonResponse("Failed to Register", status=500)
+        return JsonResponse({'code': 200,'message': "Password not same", 
+        'token': None})
+    return JsonResponse({'auth': False, 'message': "Failed to Register"}, status=500)
 
 def logout(request):
     # del request.session['email']
@@ -123,17 +130,87 @@ def logout(request):
     tmp['token'] = None
     return JsonResponse(tmp, status=200)
 
+def show_profile(request):
+    tmp = verify_token(request)
+    response = json.loads(tmp.content)
+    if response['auth'] == False:
+        return tmp
+    url = "myapp/template/profile.html"
+    page_title = 'My Profile'
+    temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    arr = json.loads(requests.get(temp).content.decode())
+    arr = arr['user']
+    try:
+        tmp = response['email']
+    except KeyError:
+        pass
+    user_data = get_user_data(arr, tmp)
+    if user_data['name'] == '':
+        return JsonResponse({'code': 200,'message': "Name is empty"})
+    return JsonResponse({'username': tmp, 'name': user_data['name'],
+                                 'title': page_title,
+                                 'first_name': user_data['first_name'],
+                                 'last_name': user_data['last_name'],
+                                 'merchant_name': user_data['merchant_name'],
+                                 'email': user_data['email'],
+                                 'profile_picture': user_data['profile_picture']})
+
+def upload_image(img):
+    imgur_key = os.environ['IMGUR_CLIENT_SECRET']
+    imgur_id = os.environ['IMGUR_CLIENT_ID']
+    client = ImgurClient(imgur_id, imgur_key)
+    try:
+        response = client.upload_from_path(img, config=None, anon=True)
+    except (ConnectionError, ImgurClientError, ImgurClientRateLimitError) as e:
+        return 'Error'
+    # print(response)
+    return response['link']
+
+def edit_data(arr, request, form):
+    for i, v in enumerate(arr['user']):
+        if v['email'] == form['email']:
+            arr['user'][i]['first_name'] = request.POST.get('first_name', '')
+            arr['user'][i]['last_name'] = request.POST.get('last_name', '')
+            arr['user'][i]['merchant_name'] = request.POST.get('merchant_name', '')
+            try:
+                temppath = request.FILES['profpic'].temporary_file_path()
+                link = upload_image(temppath)
+                arr['user'][i]['profile_picture'] = link
+            except (MultiValueDictKeyError, KeyError) as e:
+                arr['user'][i]['profile_picture'] = ''
+            break
+    return arr
+
+def edit_profile(request):
+    tmp = verify_token(request)
+    response = json.loads(tmp.content)
+    if response['auth'] == False:
+        return tmp
+    temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    arr = json.loads(requests.get(temp).content.decode())
+    arr = edit_data(arr, request, response)
+    jsondata = json.dumps(arr)
+    headers = {'Content-type': 'application/json'}
+    try:
+        req_change = requests.put(temp, data=jsondata, headers=headers)
+    except ConnectionError:
+        return JsonResponse({'no_record_check': 0}, status=404)
+    # print(req_change.content.decode())
+    print(">> change server status complete")
+    return show_profile(request)
+
 def verify_token(request):
     if request.method == 'POST':
         token = request.POST.get('token', '')
-        if token is None:
-            return JsonResponse({ auth: False, message: 'No token provided.' }, status=500)
+        if token == '':
+            return JsonResponse({ 'auth': False, 'message': 'No token provided.' }, status=500)
         else:
             try:
                 payload = jwt.decode(token, os.environ["SECRET"], algorithms=['HS256'])
             except jwt.ExpiredSignatureError:
                 # Signature has expired
-                return JsonResponse({ auth: False, message: 'Failed to authenticate token.' }, status=403)
+                return JsonResponse({ 'auth': False, 'message': 'Failed to authenticate token.' }, status=403)
             payload['exp'] = datetime.datetime.utcnow() + datetime.timedelta(seconds=3600)
             return JsonResponse({'auth': True, 'token': jwt.encode(payload, os.environ["SECRET"])
-            .decode('UTF8')}, status=200)
+            .decode('UTF8'), 'email': payload['username']}, status=200)
+    return JsonResponse({'auth': False, 'message': "Failed to Authenticate"}, status=500)
