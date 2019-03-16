@@ -7,7 +7,9 @@ import os
 import requests
 
 from myapp import email as eb
+from myapp import broadcast as tb
 from django.utils.datastructures import MultiValueDictKeyError
+from django.utils import timezone
 from imgurpython import ImgurClient
 from imgurpython.helpers.error import ImgurClientError
 from imgurpython.helpers.error import ImgurClientRateLimitError
@@ -198,6 +200,93 @@ def edit_profile(request):
     # print(req_change.content.decode())
     print(">> change server status complete")
     return show_profile(request)
+
+def mutate(request, item):
+    mutable = request.POST._mutable
+    request.POST._mutable = True
+    link = upload_image(item)
+    if link == 'Error':
+        return False
+    request.POST['img'] = link
+    request.POST._mutable = mutable
+    return True
+
+def create_ad_dict(request, ads):
+    temp = {}
+    temp['title'] = request.POST.get('title', '')
+    temp['description'] = request.POST.get('desc', '')
+    temp['author'] = ads['author']
+    temp['publish'] = str(ads['published_date'])
+    temp['lat'] = request.POST.get('latitude', '')
+    temp['long'] = request.POST.get('longitude', '')
+    temp['tag'] = request.POST.get('tag', '')
+    try:
+        temp['img'] = request.POST.get('img', '')
+    except MultiValueDictKeyError:
+        temp['img'] = ''
+    return temp
+
+def broadcast(request):
+    tmp = verify_token(request)
+    response = json.loads(tmp.content)
+    if response['auth'] == False:
+        return tmp
+    # check if image has uploaded
+    # check whether it's valid:
+    img = ''
+    try:
+        img = request.FILES['fileupload'].temporary_file_path()
+    except MultiValueDictKeyError:
+        pass
+    else:
+        if not mutate(request, img):
+            return JsonResponse({'no_record_check': 0}, status=404)
+    ads = {}
+    ads['author'] = response['email']
+    ads['published_date'] = timezone.now()
+    try:
+        temp = 'https://api.myjson.com/bins/' + os.environ['JSON_API_ID']
+        arr = json.loads(requests.get(temp).content.decode())
+        arr = arr['advertisements']
+    except KeyError:
+        arr = []
+    temp = create_ad_dict(request, ads)
+    arr.append(temp)
+    # print(arr)
+    if tb.main(arr):
+        return JsonResponse({"title": temp['title'], "description": temp['description'],
+                 "image": temp['img'], "author": temp['author'], "publish": temp['publish'],
+                 "lat": temp['lat'], "long": temp['long'], "tag": temp['tag']}, status=200)
+    else:
+        return JsonResponse({'no_record_check': 1}, status=404)
+
+def statistic(request):
+    tmp = verify_token(request)
+    response = json.loads(tmp.content)
+    if response['auth'] == False:
+        return tmp
+    # queryset = Ads.objects.all()
+    temp = 'https://api.myjson.com/bins/' + os.environ['JSON_API_ID']
+    arr = json.loads(requests.get(temp).content.decode())
+    arr = arr['advertisements']
+    tmp = []
+    username = response['email']
+    for v in arr:
+        if v['author'] == username:
+            tmp.append(v)
+    # print(tmp)
+    temp1 = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    arr1 = json.loads(requests.get(temp1).content.decode())
+    arr1 = arr1['user']
+    temp = get_user_data(arr1, username)
+    page_title = "Statistics"
+    url = "myapp/template/statistic.html"
+    return JsonResponse({'username': username, 'name': temp['name'],
+                                 'title': page_title,
+                                 'first_name': temp['first_name'],
+                                 'last_name': temp['last_name'],
+                                 'merchant_name': temp['merchant_name'],
+                                 'profile_picture': temp['profile_picture'], 'ads': tmp}, status=200)
 
 def verify_token(request):
     if request.method == 'POST':

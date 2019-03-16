@@ -11,4 +11,6 @@ urlpatterns = [
     url(r'register/$', views.register, name='register'),
     url(r'edit/$', views.edit_profile, name='edit_profile'),
     url(r'profile/$', views.show_profile, name='show_profile'),
+    url(r'broadcast/$', views.broadcast, name='broadcast'),
+    url(r'statistic/$', views.statistic, name='statistic'),
 ]
