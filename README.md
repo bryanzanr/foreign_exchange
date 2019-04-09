@@ -10,11 +10,16 @@ The web-application is based on Django Python Framework. It's implemented throug
 ![Database design](https://ibb.co/Q96xZc3)
 
 1. Currency format is in ISO where has maximum character's length of 3.
+2. Most of the variable is styled in snake case.
+3. Date format in yyyy-mm-dd.
 
 More detailed information can be found [here](https://drive.google.com/open?id=11kunl81ebg8U8jWqWiJw24ZLGRfSjfLh).
 
 Design Decision:
 * Create myapp/models.py for database migration.
+* Create myapp/serializers.py for models instance.
+* Create myapp/views.py for accessing the models.
+* Create myapp/urls.py for routing the views. 
 
 ## Getting Started (How to Run the Program)
 
@@ -35,10 +40,10 @@ These instructions will get you a copy of the project up and running on your loc
 try to send a GET request to it, for instance:
 
     ```bash
-    curl http://127.0.0.1:8000/list
+    curl http://127.0.0.1:8000/api/list
     ```
 
-    or open `http://localhost:8000/list` from your browser. You should get a
+    or open `http://localhost:8000/api/list` from your browser. You should get a
     Javascript Object Notation (JSON) response that says:
 
     ```bash

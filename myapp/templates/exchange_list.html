@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td{
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 8px;
+}
+}
+</style>
+</head>
+<body>
+
+<table>
+  <tr>
+    <td>From</td>
+    <td>To</td>
+    <td>Rate</td>
+    <td>7-day avg</td>
+  </tr>
+  {% for exchange in exchanges %}
+  <tr>
+    <td>{{ exchange.currency_from }}</td>
+    <td>{{ exchange.currency_to }}</td>
+    <td>{{ exchange.exchange_rate }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+</body>
+</html>
