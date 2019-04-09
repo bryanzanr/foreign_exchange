@@ -5,7 +5,39 @@ from rest_framework import viewsets
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import datetime
+import datetime, sys
+
+
+class ExchangeVariance(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'exchange_variance.html'
+
+    def post(self, request):
+        if len(request.data['currency_from']) < 3 or len(request.data[
+        'currency_to']) < 3:
+            return Response()
+        querydict = Exchange.objects.raw('SELECT * FROM myapp_currency C, '
+        + 'myapp_exchange E WHERE E.currency_id_id = C.id AND C.currency_from'
+        + '= %s AND C.currency_to = %s AND E.exchange_date > current_date - '
+        + "INTERVAL '7 day'", [request.data['currency_from'],
+        request.data['currency_to']])
+        max = sys.float_info.min
+        min = sys.float_info.max
+        count = 0
+        counter = 0
+        for exchange in querydict:
+            if exchange.exchange_rate > max:
+                max = exchange.exchange_rate
+            if exchange.exchange_rate < min:
+                min = exchange.exchange_rate
+            count += exchange.exchange_rate
+            counter += 1
+        if counter > 0:
+            return Response({'exchange': {'average': count/counter,
+            'variance': max - min}, 'exchanges': querydict})
+        else:
+            return Response({'exchange': {'average': 0,
+            'variance': max - min}, 'exchanges': querydict})
 
 
 class ExchangeForm(APIView):
@@ -13,7 +45,11 @@ class ExchangeForm(APIView):
     template_name = 'exchange_form.html'
 
     def get(self, request):
-        return Response()
+        try:
+            exchange_date = request.session['exchange_date']
+            return Response({'exchange_date': exchange_date})
+        except KeyError:
+            return Response()
 
     def post(self, request):
         try:
@@ -42,7 +78,7 @@ class ExchangeList(APIView):
             queryset['currency_to'] = currency.currency_to
             exchange_query = Exchange.objects.raw('SELECT * FROM myapp_exchange'
             + ' WHERE currency_id_id = %s AND exchange_date > date %s - '
-            + "interval '7 day'", [currency.id, exchange_date])
+            + "INTERVAL '7 day'", [currency.id, exchange_date])
             count = 0
             counter = 0
             for exchange in exchange_query:

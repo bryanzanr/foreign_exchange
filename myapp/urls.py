@@ -14,5 +14,7 @@ urlpatterns = [
     path('list/', views.ExchangeList.as_view(),
     name='exchange_list'),
     path('date/', views.ExchangeForm.as_view(),
-    name='exchange_form')
+    name='exchange_form'),
+    path('variance/', views.ExchangeVariance.as_view(),
+    name='exchange_variance')
 ]

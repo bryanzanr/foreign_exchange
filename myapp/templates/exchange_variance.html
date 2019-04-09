@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td{
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 8px;
+}
+}
+</style>
+</head>
+<body>
+
+<form action="{% url 'exchange_variance' %}" method="POST">
+    {% csrf_token %}
+  <b>From: </b><input type="text" name="currency_from" maxlength="3">
+  <br>
+  <b>To: </b><input type="text" name="currency_to" maxlength="3">
+  <br>
+  <input type="submit" value="Submit">
+</form>
+<br>
+<b>Average: </b>{{ exchange.average }}
+<br>
+<b>Variance: </b>{{ exchange.variance }}
+<br>
+<table>
+  <tr>
+    <td>Date</td>
+    <td>Rate</td>
+  </tr>
+  {% for exchange in exchanges %}
+  <tr>
+    <td>{{ exchange.exchange_date }}</td>
+    <td>{{ exchange.exchange_rate }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+</body>
+</html>

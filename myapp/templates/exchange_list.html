@@ -4,7 +4,7 @@
 <style>
 table {
   border-collapse: collapse;
-  width: 100%;
+  width: 25%;
 }
 
 td{
@@ -20,8 +20,8 @@ td{
 <table>
   <tr>
     <td>From</td>
-    <td>To</td>
-    <td>Rate</td>
+    <td style="text-align: left">To</td>
+    <td style="text-align: right">Rate</td>
     <td>7-day avg</td>
   </tr>
   {% for exchange in exchanges %}
@@ -31,7 +31,7 @@ td{
     {% if exchange.exchange_rate == 'insufficient data' %}
     <td><i>{{ exchange.exchange_rate }}</i></td>
     {% else %}
-    <td>{{ exchange.exchange_rate }}</td>
+    <td style="text-align: right">{{ exchange.exchange_rate }}</td>
     {% endif %}
     <td>{{ exchange.avg }}</td>
   </tr>
