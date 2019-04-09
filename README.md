@@ -24,6 +24,8 @@ Design Decision:
 * Create myapp/serializers.py for models instance.
 * Create myapp/views.py for accessing the models.
 * Create myapp/urls.py for routing the views.
+* Create templates/ for HTML Custom Page.
+* Create myapp/tests.py for unit-testing.
 
 ## Getting Started (How to Run the Program)
 
@@ -44,23 +46,23 @@ These instructions will get you a copy of the project up and running on your loc
 try to send a GET request to it, for instance:
 
     ```bash
-    curl http://127.0.0.1:8000/api/list
+    curl http://127.0.0.1:8000/api/status
     ```
 
-    or open `http://localhost:8000/api/list` from your browser. You should get a
-    Javascript Object Notation (JSON) response that says:
+    or open `http://localhost:8000/api/status` from your browser. You should get a Javascript Object Notation (JSON) response that says:
 
     ```bash
     {list:[]}
     ```
 
-### Installing (How to run the tests/linters)
+### Installing (How to check and test the program)
 
 1. Make sure you already pull the docker images and run the container.
 Both are listed in `Dockerfile` and `docker-compose.yml` so if you followed the instructions to setup your machine above then they should already be installed and running.
 2. You can run the check for running container ID with `docker ps` and for the installed images with `docker images` respectively.
 3. To run the Postgre Structured Query Language (PosgreSQL) console in one command, you can use `docker exec -it <database container ID> psql -U postgres `. This is useful to check the database directly.
-4. For more info on what you can do with `docker`, run `docker --help`.
+4. To run the tests, you can use `docker exec -it <web container ID> python manage.py test`.
+5. For more info on what you can do with `docker`, run `docker --help`.
 
 ## Built With
 
