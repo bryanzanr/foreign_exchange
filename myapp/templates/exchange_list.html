@@ -28,7 +28,12 @@ td{
   <tr>
     <td>{{ exchange.currency_from }}</td>
     <td>{{ exchange.currency_to }}</td>
+    {% if exchange.exchange_rate == 'insufficient data' %}
+    <td><i>{{ exchange.exchange_rate }}</i></td>
+    {% else %}
     <td>{{ exchange.exchange_rate }}</td>
+    {% endif %}
+    <td>{{ exchange.avg }}</td>
   </tr>
   {% endfor %}
 </table>
