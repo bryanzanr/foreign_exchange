@@ -18,21 +18,19 @@ td{
 </head>
 <body>
 
-  <form action="{% url 'exchange_form' %}" method="POST">
-      {% csrf_token %}
     <table>
       <tr>
-        <td>Type</td>
-        <td>Input</td>
+        <td>From</td>
+        <td>To</td>
+        <td>Delete</td>
       </tr>
       <tr>
-        <td>Date</td>
-        <td><input type="date" name="exchange_date"
-          style="color: #ff0000;" value={{ exchange_date }}></td>
+        <td>{{ currency_from }}</td>
+        <td>{{ currency_to }}</td>
+        <td onclick="location.href='{% url 'currency_delete' %}'">[]</td>
       </tr>
     </table>
     <input type="submit" value="Submit">
-</form>
 
 </body>
 </html>

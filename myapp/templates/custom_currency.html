@@ -1,0 +1,62 @@
+{% load rest_framework %}
+
+<html>
+<head>
+<style>
+table {
+  border-collapse: collapse;
+  width: 15%;
+}
+
+td{
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 8px;
+}
+}
+</style>
+</head>
+<body>
+
+  {% if success %}
+  <script>
+      alert('Currency Inserted')
+  </script>
+  {% endif %}
+  {% if failed %}
+  <script>
+      alert('Currency existed')
+  </script>
+  {% else %}
+  <script>
+      alert('Please insert on ISO format')
+  </script>
+  {% endif %}
+
+  <form action="{% url 'custom_currency' %}" method="POST">
+      {% csrf_token %}
+    <table>
+      <tr>
+        <td>Type</td>
+        <td>Input</td>
+      </tr>
+      <tr>
+        <td>From</td>
+        <td><input type="text" name="currency_from"
+          maxlength="3" style="color: #ff0000;"
+          value={{ currency_from }}>
+        </td>
+      </tr>
+      <tr>
+        <td>To</td>
+        <td><input type="text" name="currency_to"
+          maxlength="3" style="color: #ff0000;"
+          value={{ currency_to }}>
+        </td>
+      </tr>
+    </table>
+    <input type="submit" value="Submit">
+</form>
+
+</body>
+</html>

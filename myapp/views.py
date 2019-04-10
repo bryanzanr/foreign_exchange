@@ -1,3 +1,4 @@
+from .forms import CurrencyForm
 from .models import Currency, Exchange
 from .serializers import CurrencySerializer, ExchangeSerializer
 from django.shortcuts import redirect
@@ -11,6 +12,9 @@ import datetime, sys
 class ExchangeVariance(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'exchange_variance.html'
+
+    def get(self, request):
+        return Response()
 
     def post(self, request):
         if len(request.data['currency_from']) < 3 or len(request.data[
@@ -34,10 +38,14 @@ class ExchangeVariance(APIView):
             counter += 1
         if counter > 0:
             return Response({'exchange': {'average': count/counter,
-            'variance': max - min}, 'exchanges': querydict})
+            'variance': max - min}, 'exchanges': querydict,
+            'currency_from': request.data['currency_from'],
+            'currency_to': request.data['currency_to']})
         else:
             return Response({'exchange': {'average': 0,
-            'variance': max - min}, 'exchanges': querydict})
+            'variance': max - min}, 'exchanges': querydict,
+            'currency_from': request.data['currency_from'],
+            'currency_to': request.data['currency_to']})
 
 
 class ExchangeForm(APIView):
@@ -108,3 +116,66 @@ class ExchangeViewSet(viewsets.ModelViewSet):
     """
     queryset = Exchange.objects.all()
     serializer_class = ExchangeSerializer
+
+
+class DailyExchange(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'daily_exchange.html'
+
+    def get(self, request):
+        return Response()
+
+    def post(self, request):
+        querydict = Exchange.objects.raw('SELECT * FROM myapp_currency C, '
+        + 'myapp_exchange E WHERE E.currency_id_id = C.id AND C.currency_from'
+        + '= %s AND C.currency_to = %s', [request.data['currency_from'],
+        request.data['currency_to']])
+        for exchange in querydict:
+            data = Currency.objects.get(currency_from=request
+            .data['currency_from'], currency_to=request.data['currency_to'])
+            daily = Exchange(exchange_date=request.data['exchange_date'],
+            exchange_rate=request.data['exchange_rate'])
+            daily.currency_id = data
+            daily.save()
+            return Response({'success': True})
+        return Response({'exchange_date': request.data['exchange_date'],
+        'currency_from': request.data['currency_from'],
+        'currency_to': request.data['currency_to'],
+        'exchange_rate': request.data['exchange_rate'],
+        'failed': True})
+
+
+class CustomCurrency(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'custom_currency.html'
+
+    def get(self, request):
+        return Response()
+
+    def post(self, request):
+        form = CurrencyForm(request.POST)
+        if form.is_valid():
+            if Currency.objects.filter(currency_from=request
+            .data['currency_from'], currency_to=request
+            .data['currency_to']).exists():
+                return Response({'failed': True})
+            form.insert()
+            return Response({'success': True})
+        else:
+            return Response({'currency_from': request.data['currency_from'],
+            'currency_to': request.data['currency_to'],
+            'success': False})
+
+
+class CurrencyDelete(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'currency_delete.html'
+
+    def get(self, request):
+        return Response()
+
+    def post(self, request):
+        currency = Currency.objects.filter(currency_from=request
+        .data['currency_from'], currency_to=request
+        .data['currency_to'])
+        return Response({'success': True})

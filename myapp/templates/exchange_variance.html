@@ -19,9 +19,11 @@ td{
 
 <form action="{% url 'exchange_variance' %}" method="POST">
     {% csrf_token %}
-  <b>From: </b><input type="text" name="currency_from" maxlength="3">
+  <b>From: </b><input type="text" name="currency_from" maxlength="3"
+  value={{ currency_from }}>
   <br>
-  <b>To: </b><input type="text" name="currency_to" maxlength="3">
+  <b>To: </b><input type="text" name="currency_to" maxlength="3"
+  value={{ currency_to }}>
   <br>
   <input type="submit" value="Submit">
 </form>

@@ -16,5 +16,9 @@ urlpatterns = [
     path('date/', views.ExchangeForm.as_view(),
     name='exchange_form'),
     path('variance/', views.ExchangeVariance.as_view(),
-    name='exchange_variance')
+    name='exchange_variance'),
+    path('daily/', views.DailyExchange.as_view(),
+    name='daily_exchange'),
+    path('track/', views.CustomCurrency.as_view(),
+    name='custom_currency')
 ]
