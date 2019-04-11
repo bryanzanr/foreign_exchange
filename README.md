@@ -7,7 +7,7 @@
 
 The web-application is based on Django Python Framework. It's implemented through Django Representational State Transfer Application Program Interface (REST-API) and some others custom views on Hyper Text Markup Language (HTML). The assumptions that has been made are as follows::
 
-![Database design](https://ibb.co/Q96xZc3)
+![Database design](https://raw.githubusercontent.com/bryanzanr/foreign_exchange/master/Foreign%20Currency.jpg)
 
 1. Currency format is in ISO where has maximum character's length of 3.
 2. Most of the variable is styled in snake case.
