@@ -21,7 +21,7 @@ class ExchangeVariance(APIView):
         'currency_to']) < 3:
             return Response()
         querydict = Exchange.objects.raw('SELECT * FROM myapp_currency C, '
-        + 'myapp_exchange E WHERE E.currency_id_id = C.id AND C.currency_from'
+        + 'myapp_exchange E WHERE E.currency_id = C.id AND C.currency_from'
         + '= %s AND C.currency_to = %s AND E.exchange_date > current_date - '
         + "INTERVAL '7 day'", [request.data['currency_from'],
         request.data['currency_to']])
@@ -85,7 +85,7 @@ class ExchangeList(APIView):
             queryset['currency_from'] = currency.currency_from
             queryset['currency_to'] = currency.currency_to
             exchange_query = Exchange.objects.raw('SELECT * FROM myapp_exchange'
-            + ' WHERE currency_id_id = %s AND exchange_date > date %s - '
+            + ' WHERE currency_id = %s AND exchange_date > date %s - '
             + "INTERVAL '7 day'", [currency.id, exchange_date])
             count = 0
             counter = 0
@@ -127,7 +127,7 @@ class DailyExchange(APIView):
 
     def post(self, request):
         querydict = Exchange.objects.raw('SELECT * FROM myapp_currency C, '
-        + 'myapp_exchange E WHERE E.currency_id_id = C.id AND C.currency_from'
+        + 'myapp_exchange E WHERE E.currency_id = C.id AND C.currency_from'
         + '= %s AND C.currency_to = %s', [request.data['currency_from'],
         request.data['currency_to']])
         for exchange in querydict:
@@ -172,10 +172,16 @@ class CurrencyDelete(APIView):
     template_name = 'currency_delete.html'
 
     def get(self, request):
-        return Response()
+        try:
+            status = request.session['delete']
+            del request.session['delete']
+        except KeyError:
+            status = False
+        querydict = Currency.objects.raw('SELECT * FROM myapp_currency')
+        return Response({'currencies': querydict, 'success': status})
 
-    def post(self, request):
-        currency = Currency.objects.filter(currency_from=request
-        .data['currency_from'], currency_to=request
-        .data['currency_to'])
-        return Response({'success': True})
+def currency_delete(request, currency_id=None):
+    currency = Currency.objects.get(id=currency_id)
+    currency.delete()
+    request.session['delete'] = True
+    return redirect('remove_currency')

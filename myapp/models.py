@@ -8,5 +8,5 @@ class Currency(models.Model):
 
 class Exchange(models.Model):
     exchange_date = models.DateField()
-    currency_id = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
     exchange_rate = models.FloatField()

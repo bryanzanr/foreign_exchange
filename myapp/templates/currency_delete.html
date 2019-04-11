@@ -18,19 +18,29 @@ td{
 </head>
 <body>
 
+  {% if success %}
+  <script>
+      alert('Currency Deleted')
+  </script>
+  {% endif %}
+
     <table>
       <tr>
         <td>From</td>
         <td>To</td>
         <td>Delete</td>
       </tr>
+      {% for currency in currencies %}
       <tr>
-        <td>{{ currency_from }}</td>
-        <td>{{ currency_to }}</td>
-        <td onclick="location.href='{% url 'currency_delete' %}'">[]</td>
+        <td>{{ currency.currency_from }}</td>
+        <td>{{ currency.currency_to }}</td>
+          <td>
+            <a style="color: #ff0000;"
+            href={% url "currency_delete" currency.id %}>[]
+          </a></td>
       </tr>
+      {% endfor %}
     </table>
-    <input type="submit" value="Submit">
 
 </body>
 </html>

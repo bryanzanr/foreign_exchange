@@ -20,5 +20,9 @@ urlpatterns = [
     path('daily/', views.DailyExchange.as_view(),
     name='daily_exchange'),
     path('track/', views.CustomCurrency.as_view(),
-    name='custom_currency')
+    name='custom_currency'),
+    path('remove/', views.CurrencyDelete.as_view(),
+    name='remove_currency'),
+    path('remove/<int:currency_id>/',
+    views.currency_delete, name='currency_delete')
 ]
