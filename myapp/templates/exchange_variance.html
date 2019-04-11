@@ -17,6 +17,12 @@ td{
 </head>
 <body>
 
+  {% if failed %}
+  <script>
+      alert('Please insert the correct Currency')
+  </script>
+  {% endif %}
+
 <form action="{% url 'exchange_variance' %}" method="POST">
     {% csrf_token %}
   <b>From: </b><input type="text" name="currency_from" maxlength="3"

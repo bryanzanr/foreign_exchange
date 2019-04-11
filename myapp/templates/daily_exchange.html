@@ -28,6 +28,11 @@ td{
       alert('Please insert new Currency first')
   </script>
   {% endif %}
+  {% if duplicate %}
+  <script>
+      alert('Daily Exchange Existed')
+  </script>
+  {% endif %}
 
   <form action="{% url 'daily_exchange' %}" method="POST">
       {% csrf_token %}

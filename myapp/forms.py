@@ -1,7 +1,10 @@
 from django import forms
 from .models import Currency
 
-class CurrencyForm(forms.Form):
+class CurrencyForm(forms.ModelForm):
+    class Meta:
+        model = Currency
+        fields = '__all__'
     currency_from = forms.CharField(min_length=3, max_length=3, required=True)
     currency_to = forms.CharField(min_length=3, max_length=3, required=True)
 
