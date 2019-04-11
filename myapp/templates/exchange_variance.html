@@ -4,7 +4,7 @@
 <style>
 table {
   border-collapse: collapse;
-  width: 100%;
+  width: 12%;
 }
 
 td{
@@ -40,12 +40,12 @@ td{
 <br>
 <table>
   <tr>
-    <td>Date</td>
+    <td style="text-align: left">Date</td>
     <td>Rate</td>
   </tr>
   {% for exchange in exchanges %}
   <tr>
-    <td>{{ exchange.exchange_date }}</td>
+    <td>{{ exchange.exchange_date|date:'Y-m-d' }}</td>
     <td>{{ exchange.exchange_rate }}</td>
   </tr>
   {% endfor %}

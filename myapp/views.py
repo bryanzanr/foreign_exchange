@@ -62,7 +62,7 @@ class ExchangeForm(APIView):
             datetime.datetime.strptime(request.data[
             'exchange_date'], '%Y-%m-%d')
         except ValueError:
-            return Response()
+            return Response({'failed': True})
         request.session['exchange_date'] = request.data['exchange_date']
         return redirect('exchange_list')
 
@@ -88,8 +88,8 @@ class ExchangeList(APIView):
             count = 0
             counter = 0
             for exchange in exchange_query:
-                if exchange.exchange_date == exchange_date:
-                    queryset['exchange_rate'] = exchange.exchange_date
+                if str(exchange.exchange_date) == exchange_date:
+                    queryset['exchange_rate'] = exchange.exchange_rate
                 count += exchange.exchange_rate
                 counter += 1
             queryset['avg'] = count/7
@@ -115,8 +115,8 @@ class ExchangeList(APIView):
             count = 0
             counter = 0
             for exchange in exchange_query:
-                if exchange.exchange_date == exchange_date:
-                    queryset['exchange_rate'] = exchange.exchange_date
+                if str(exchange.exchange_date) == exchange_date:
+                    queryset['exchange_rate'] = exchange.exchange_rate
                 count += exchange.exchange_rate
                 counter += 1
             queryset['avg'] = count/7

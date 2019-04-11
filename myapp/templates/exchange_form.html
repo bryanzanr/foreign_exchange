@@ -18,6 +18,12 @@ td{
 </head>
 <body>
 
+  {% if failed %}
+  <script>
+      alert('Please insert on yyyy-mm-dd format')
+  </script>
+  {% endif %}
+
   <form action="{% url 'exchange_form' %}" method="POST">
       {% csrf_token %}
     <table>
