@@ -22,7 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "CHANGE_ME!!!! (P.S. the SECRET_KEY environment variable will be used, if set, instead)."
+# SECRET_KEY = "CHANGE_ME!!!! (P.S. the SECRET_KEY environment variable will be used, if set, instead)."
+SECRET_KEY = os.environ['DJANGO_API_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -78,8 +79,14 @@ WSGI_APPLICATION = "gettingstarted.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE" : "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3")
+        # "ENGINE" : "django.db.backends.sqlite3",
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': os.environ['SPRING_DATASOURCE_USERNAME'],
+        'USER': os.environ['SPRING_DATASOURCE_USERNAME'],
+        'PASSWORD': os.environ['SPRING_DATASOURCE_PASSWORD'],
+        'HOST': os.environ['DJANGO_DATABASE_HOST'],   # Or an IP Address that your DB is hosted on
+        'PORT': os.environ['DJANGO_DATABASE_PORT'],
+        # "NAME": os.path.join(BASE_DIR, "db.sqlite3")
     }
 }
 
