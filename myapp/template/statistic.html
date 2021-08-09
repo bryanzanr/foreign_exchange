@@ -8,9 +8,7 @@
         {% endblock %}
             {% block navmenu %}
             <li><a href="/myapp/broadcast/"><i class="material-icons">send</i>Broadcast</a></li>
-            <li><a href="#"><i class="material-icons">history</i>History</a></li>
             <li class="active"><a href="/myapp/statistic"><i class="material-icons">show_chart</i>Statistics</a></li>
-            <li><a href="#"><i class="material-icons">chat</i>Chat</a></li>
             <li><a href="/myapp/profile"><i class="material-icons">account_box</i>My Profile</a></li>
             {% endblock %}
         {% block content %}
@@ -22,10 +20,7 @@
                     <tr>
                         <th>Title</th>
                         <th>Description</th>
-                        <th>Published Date</th>
-                        <th>Image Link</th> 
-                        <th>Latitude</th>
-                        <th>Longitude</th>
+                        <th style="display: none;">Published Date</th>
                         <th>Author</th>
                     </tr>
                     </thead>
@@ -34,10 +29,7 @@
                         <tr>
                             <td>{{ v.title }}</td>
                             <td>{{ v.description }}</td>
-                            <td>{{ v.publish }}</td>
-                            <td>{{ v.image }}</td>
-                            <td>{{ v.lat }}</td>
-                            <td>{{ v.long }}</td>
+                            <td style="display: none">{{ v.publish }}</td>
                             <td>{{ v.author }}</td>
                         </tr>
                         {% endfor %}

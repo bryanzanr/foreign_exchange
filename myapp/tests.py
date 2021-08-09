@@ -152,7 +152,8 @@ class BroadcastTest(TestSession, TestCase):
         session.save()
         # arr = self.get_ads()
         # arr.append(temp)
-        request = self.client.post('/myapp/broadcast/', data=self.create_test_ads())
+        request = self.client.post(
+            '/myapp/broadcast/', data=self.create_test_ads())
         self.assertEqual(request.status_code, 302)
 
     def test_ads_send_with_img(self):
@@ -163,7 +164,8 @@ class BroadcastTest(TestSession, TestCase):
         img = open('static/image/coba.jpeg', 'rb')
         # arr = self.get_ads()
         # arr.append(temp)
-        request = self.client.post('/myapp/broadcast/', data=self.create_test_ads(img))
+        request = self.client.post(
+            '/myapp/broadcast/', data=self.create_test_ads(img))
         self.assertEqual(request.status_code, 302)
 
     @mock.patch('requests.put')
@@ -175,7 +177,8 @@ class BroadcastTest(TestSession, TestCase):
         session.save()
         # arr = self.get_ads()
         # arr.append(temp)
-        request = self.client.post('/myapp/broadcast/', data=self.create_test_ads())
+        request = self.client.post(
+            '/myapp/broadcast/', data=self.create_test_ads())
         self.assertEqual(request.status_code, 302)
 
     def test_send_ads_after_reset_database(self):
@@ -188,7 +191,8 @@ class BroadcastTest(TestSession, TestCase):
         session.save()
         # arr = self.get_ads()
         # arr.append(temp)
-        request = self.client.post('/myapp/broadcast/', data=self.create_test_ads())
+        request = self.client.post(
+            '/myapp/broadcast/', data=self.create_test_ads())
         mock_test.stop()
         self.assertEqual(request.status_code, 302)
 
@@ -210,7 +214,8 @@ class BroadcastTest(TestSession, TestCase):
         img = open('static/image/coba.jpeg', 'rb')
         # arr = self.get_ads()
         # arr.append(temp)
-        request = self.client.post('/myapp/broadcast/', data=self.create_test_ads(img))
+        request = self.client.post(
+            '/myapp/broadcast/', data=self.create_test_ads(img))
         self.assertEqual(request.status_code, 302)
 
     def clear_arr(self):
@@ -314,7 +319,8 @@ class LoggedinPageTest(TestSession, TestCase):
             'email': 'test@test.com',
             'password': 'test'
         }
-        request = self.client.post('/myapp/loggedin/', data=login_data, follow=True)
+        request = self.client.post(
+            '/myapp/loggedin/', data=login_data, follow=True)
         self.assertRedirects(request, '/myapp/broadcast/')
 
     def test_loggedin_fail(self):
@@ -322,7 +328,8 @@ class LoggedinPageTest(TestSession, TestCase):
             'email': '',
             'password': ''
         }
-        request = self.client.post('/myapp/loggedin/', data=login_data, follow=True)
+        request = self.client.post(
+            '/myapp/loggedin/', data=login_data, follow=True)
         self.assertRedirects(request, '/login/')
 
     def test_loggedin_fail_password_not_equal(self):
@@ -330,7 +337,8 @@ class LoggedinPageTest(TestSession, TestCase):
             'email': 'test@test.com',
             'password': 'testt'
         }
-        request = self.client.post('/myapp/loggedin/', data=login_data, follow=True)
+        request = self.client.post(
+            '/myapp/loggedin/', data=login_data, follow=True)
         self.assertRedirects(request, '/login/')
 
     @mock.patch('requests.get')
@@ -340,7 +348,8 @@ class LoggedinPageTest(TestSession, TestCase):
             'email': 'test@test.com',
             'password': 'test'
         }
-        request = self.client.post('/myapp/loggedin/', data=login_data, follow=True)
+        request = self.client.post(
+            '/myapp/loggedin/', data=login_data, follow=True)
         self.assertRedirects(request, '/register/')
 
 
@@ -363,7 +372,8 @@ class RegisteredPageTest(TestSession, TestCase):
             'password': 'test',
             'repeat_password': 'test'
         }
-        request = self.client.post('/myapp/registered/', data=register_data, follow=True)
+        request = self.client.post(
+            '/myapp/registered/', data=register_data, follow=True)
         self.assertRedirects(request, '/myapp/broadcast/')
 
     def test_registered_fail(self):
@@ -375,7 +385,8 @@ class RegisteredPageTest(TestSession, TestCase):
             'password': 'test',
             'repeat_password': 'testt'
         }
-        request = self.client.post('/myapp/registered/', data=register_data, follow=True)
+        request = self.client.post(
+            '/myapp/registered/', data=register_data, follow=True)
         self.assertRedirects(request, '/register/')
 
     @mock.patch('requests.put')
@@ -404,7 +415,8 @@ class RegisteredPageTest(TestSession, TestCase):
             'password': 'test',
             'repeat_password': 'test'
         }
-        request = self.client.post('/myapp/registered/', data=register_data, follow=True)
+        request = self.client.post(
+            '/myapp/registered/', data=register_data, follow=True)
         self.assertRedirects(request, '/myapp/broadcast/')
         mock_test.stop()
 
@@ -576,7 +588,8 @@ class EditProfilePageTest(TestSession, TestCase):
         session = self.client.session
         session['email'] = 'test@test.com'
         session.save()
-        response = self.client.post('/myapp/editProfile/', self.create_profile(img))
+        response = self.client.post(
+            '/myapp/editProfile/', self.create_profile(img))
         self.assertRedirects(response, '/editSuccess/')
 
     def test_edit_profile_without_profpic(self):
@@ -584,7 +597,8 @@ class EditProfilePageTest(TestSession, TestCase):
         session = self.client.session
         session['email'] = 'test@test.com'
         session.save()
-        response = self.client.post('/myapp/editProfile/', self.create_profile())
+        response = self.client.post(
+            '/myapp/editProfile/', self.create_profile())
         self.assertRedirects(response, '/editSuccess/')
 
     @mock.patch('requests.put')
@@ -594,7 +608,8 @@ class EditProfilePageTest(TestSession, TestCase):
         session = self.client.session
         session['email'] = 'test@test.com'
         session.save()
-        response = self.client.post('/myapp/editProfile/', self.create_profile())
+        response = self.client.post(
+            '/myapp/editProfile/', self.create_profile())
         self.assertRedirects(response, '/myapp/editProfile/response/')
 
 

@@ -18,10 +18,6 @@ from django.urls import include, path  # , patterna
 from django.conf.urls import url
 admin.autodiscover()
 
-from rest_framework_swagger.views import get_swagger_view
-
-schema_view = get_swagger_view(title='Fly-It API')
-
 """urlpatterns = patterns('',
    #Examples
    #url(r'^$', 'myproject.view.home', name = 'home'),
@@ -35,5 +31,5 @@ urlpatterns = [
     path('polls/', include('polls.urls')),
     path('admin/', admin.site.urls),
     path('myapp/', include('myapp.urls')),
-    url(r'^$', schema_view),
+    url(r'^', include('myapp.urls')),
 ]

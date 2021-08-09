@@ -30,7 +30,7 @@ DEBUG = False
 # SECURE_SSL_REDIRECT = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost',
-                 'fly-it.herokuapp.com', 'flyit.arsyady.com']
+                 'halonesia.herokuapp.com', 'flyit.arsyady.com']
 
 
 # Application definition
@@ -43,14 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'myapp',
-    'rest_framework_swagger',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -94,7 +93,7 @@ DATABASES = {
         'PASSWORD': os.environ['DB_PASS'],
         'HOST': os.environ['DB_HOST'],
         # 'HOST': '0.0.0.0',
-        'PORT': os.environ['PORT'],
+        'PORT': os.environ['FLYIT_PORT'],
     }
 }
 

@@ -3,6 +3,7 @@
 <html>
     <head>
         <title>Register Page</title>
+        <link rel="shortcut icon" href="/static/image/logo.ico">
         <link href="{% static 'css/material.css' %}" rel="stylesheet">
         <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="{% static 'css/mycss.css' %}"  media="screen,projection"/>
@@ -13,16 +14,21 @@
     <body>
         <script type="text/javascript" src="{% static 'js/jquery-3.2.1.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+        {% if fail %}
+        <script>
+            M.toast({html: 'Something went wrong'})
+        </script>
+        {% endif %}
         <div class="container">
             <div class="row">
                 <div class="col s3">  
                 </div>
-                <div class="col s6">
+                <div class="col s12 m8 l8 xl6">
                     <div class="row">
                         <div class="col s2"></div>
-                        <div class="col s6">
+                        <div class="col s12 m8 l8 xl6">
                             <div class="card-panel logo">
-                                <h3 class="cyan-text">FLY-IT</h3>
+                                <h3 class="white-text">FLY-IT</h3>
                                 <h4>by Halonesia</h4>
                             </div>   
                         </div>
@@ -31,7 +37,7 @@
                     <div class="card-panel card">
                         <h3 class="cyan-text center">Register</h3>
                         <div class="row">
-                            <form id="register_form" class="col s12" action="/myapp/registered/" method="POST">
+                            <form id="register_form" class="col s12" action="" method="POST">
                             {% csrf_token %}
                                 <div class="row">
                                     <div class="input-field col s6">

@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 {% load static %}
+<!-- {% if message %}
+<script>
+    alert('{{ message }}');
+</script>>
+{% endif %} -->
   <html>
     <head>
       <title>Login Page</title>
+      <link rel="shortcut icon" href="/static/image/logo.ico">
       <link href="{% static 'css/material.css' %}" rel="stylesheet">
       <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}"  media="screen,projection"/>
       <link type="text/css" rel="stylesheet" href="{% static 'css/mycss.css' %}"  media="screen,projection"/>
@@ -11,17 +17,28 @@
     <body>
       <script type="text/javascript" src="{% static 'js/jquery-3.2.1.js' %}"></script>
       <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+      <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-auth.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-database.js"></script>
+      {% if fail %}
+      <script>
+          M.toast({html: 'Email/Password are wrong'})
+      </script>
+      {% endif %}
+      <!-- <script type="text/javascript" src="../static/js/main.js"></script> -->
+      <!-- <script type="text/javascript" src="../static/js/login.js"></script> -->
       <div class="container">
         <div class="row">
           <div class="col s3">
           </div>
-            <div class="col s6">
+            <div class="col s12 m8 l8 xl6">
               <div class="row"> 
                 <div class="col s2">
                 </div>
-                <div class="col s6"> 
+                <div class="col s12 m8 l8 xl6"> 
                   <div class="card-panel logo">
-                    <h3 class="cyan-text">FLY-IT</h3>
+                    <h3 class="white-text">FLY-IT</h3>
                     <h4>by Halonesia</h4>
                   </div>
                 </div>
@@ -31,22 +48,31 @@
               <div class="card-panel card">
                 <h3 class="cyan-text center">Login</h3>
                 <div class="row">
-                  <form class="col s12" action="/myapp/loggedin/" method="post">{% csrf_token %}
+                  <form class="col s12" action="" method="post">{% csrf_token %}
                     <div class="row">
                       <div class="input-field col s12">
                         <i class="material-icons prefix">account_circle</i>
-                        <input name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" type="email" class="validate" name="email" required="" aria-required="true">
+                        <input name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" type="email" class="validate" required="" aria-required="true">
                         <label for="{{ form.email.id_for_label }}">Email</label>
                       </div>
                       <div class="input-field col s12">
                         <i class="material-icons prefix">vpn_key</i>
-                        <input name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" name="password" type="password" class="validate" required="" aria-required="true">
+                        <input name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" type="password" class="validate" required="" aria-required="true">
                         <label for="{{ form.password.id_for_label }}">Password</label>
                       </div>
                     </div>
+                    <!-- <button hidden id="sign-in" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-textwhite">
+                      <i class="material-icons">account_circle</i>Sign-in with Google
+                    </button> -->
+                    <!-- <div class="col s12">
+                      <button hidden id="sign-in" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
+                        <i class="material-icons">account_circle</i>Login with Google
+                      </button>
+                    </div> -->
                     <div class="col s12">
-                      <button class="btn waves-effect waves-light col s12" type="submit" name="action">Login</button>
+                      <button class="waves-effect waves-light btn cyan right col s12" type="submit" name="action">Login</button>
                     </div>
+                    <div class="col s12"></div>
                     <div class="input-field col s12">
 <!--                       <p class="center"><a href="#">forget your password?</a></p> -->
                       <p class="center"><a href="myapp/register/">Register</a></p>
@@ -58,5 +84,6 @@
             <div class="col s3">        
           </div>
         </div>
+      </div>
     </body>
   </html>

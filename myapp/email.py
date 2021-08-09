@@ -9,7 +9,7 @@ from sendgrid.helpers.mail import Mail, Content, Email
 from django.shortcuts import redirect
 
 
-def main(arr, mail):
+def main(arr, mail, auth, firebase):
     sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
     from_email = Email("support@fly-it.com")
     to_email = Email(mail)
@@ -24,13 +24,21 @@ def main(arr, mail):
     print(response.body)
     print(response.headers)
 
+    user = {"user": arr}
     # data = json.dumps(user)
     # headers = {'Content-type': 'application/json'}
     # link = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
     # try:
     #     req_change = requests.put(link, data=data, headers=headers)
     # data = json.dumps(user)
-    user = {"user": arr}
+    # Get a reference to the auth service
+    # Log the user in
+    user = auth.sign_in_with_email_and_password(os.environ['FIREBASE_EMAIL'],
+                                                os.environ['SENDGRID_PASSWORD'])
+    # Get a reference to the database service
+    db = firebase.database()
+    db.child('merchants').child('merchants').child(
+        '-LBYv8EMuHjq4nscaQjX').update(user, user['idToken'])
     link = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
     try:
         req_change = requests.put(link, json=user)

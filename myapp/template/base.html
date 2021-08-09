@@ -3,6 +3,7 @@
 <html>
     <head>
         <link href="{% static 'css/material.css' %}" rel="stylesheet">
+        <link rel="shortcut icon" href="/static/image/logo.ico">
         <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="{% static 'css/flyit.css' %}"  media="screen,projection"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -26,7 +27,7 @@
                     <img class="circle white">
                     {% endif %}
                 </a>
-                <a href="#!name"><span class="white-text name">{{name}}</span></a>
+                <a href="#!name"><span class="white-text name">{{first_name}} {{last_name}}</span></a>
                 <a href="#!email"><span class="white-text email">{{username}}</span></a>
             </div></li>
             {% block navmenu %}

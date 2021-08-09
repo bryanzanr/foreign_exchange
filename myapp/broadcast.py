@@ -1,11 +1,19 @@
 # from django.shortcuts import redirect
+# from google.cloud import storage
+# from PIL import Image
+# import random
 import requests
 # import json
 import os
+# import pyrebase
 
 
-def main(temp):
+def main(temp, auth, firebase):
     arr = []
+    # client = storage.Client.from_service_account_json('Flyit-dbdcc3a8581e.json')
+    # bucket = client.get_bucket('flyit-e0aa3.appspot.com')
+    # blob = bucket.blob('Architecture.jpg')
+    # blob.upload_from_filename(filename='Architecture.jpg')
     # line = json.load(open('website/myapp/static/text/image.txt'))
     # for i in range(len(line)):
     #     image.append(line[i]['link'])
@@ -35,6 +43,14 @@ def main(temp):
                  "lat": latitude[i], "long": longitude[i], "tag": tag[i]}
         arr.append(param)
     ads = {"advertisements": arr}
+    # Get a reference to the auth service
+    # Log the user in
+    user = auth.sign_in_with_email_and_password(os.environ['FIREBASE_EMAIL'],
+                                                os.environ['SENDGRID_PASSWORD'])
+    # Get a reference to the database service
+    db = firebase.database()
+    db.child('advertisements').child(
+        '-LBYvWae4P3F3rZsgepL').update(ads, user['idToken'])
     # data = json.dumps(ads)
     link = 'https://api.myjson.com/bins/' + os.environ['JSON_API_ID']
     try:

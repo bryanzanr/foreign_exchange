@@ -14,21 +14,25 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Ads',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=100)),
                 ('desc', models.CharField(max_length=300)),
                 ('address', models.CharField(max_length=45)),
                 ('latitude', models.CharField(max_length=30)),
                 ('longitude', models.CharField(max_length=30)),
-                ('tag', models.CharField(choices=[('1', 'Food'), ('2', 'Fashion'), ('3', 'Lifestyle'), ('4', 'Property')], max_length=2)),
-                ('img', models.URLField(blank=True, default=None, max_length=300, null=True)),
+                ('tag', models.CharField(choices=[
+                 ('1', 'Food'), ('2', 'Fashion'), ('3', 'Lifestyle'), ('4', 'Property')], max_length=2)),
+                ('img', models.URLField(blank=True,
+                                        default=None, max_length=300, null=True)),
                 ('published_date', models.DateTimeField(auto_now=True)),
             ],
         ),
         migrations.CreateModel(
             name='Login',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('email', models.EmailField(max_length=100)),
                 ('password', models.CharField(max_length=50)),
             ],
@@ -36,7 +40,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Register',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('first_name', models.CharField(max_length=50)),
                 ('last_name', models.CharField(max_length=50)),
                 ('merchant_name', models.CharField(max_length=100)),
@@ -48,7 +53,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='User',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('user_name', models.CharField(max_length=100)),
                 ('user_avatar', models.FileField(upload_to='')),
             ],
