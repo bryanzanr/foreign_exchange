@@ -11,11 +11,11 @@
         </style>
         {% endblock %}
             {% block navmenu %}
-            <li class="active"><a href="/myapp/broadcast/"><i class="material-icons">send</i>Broadcast</a></li>
+            <li class="active"><a href="broadcast.html"><i class="material-icons">send</i>Broadcast</a></li>
             <li><a href="#"><i class="material-icons">history</i>History</a></li>
-            <li><a href="/myapp/statistic"><i class="material-icons">show_chart</i>Statistics</a></li>
+            <li><a href="statistic.html"><i class="material-icons">show_chart</i>Statistics</a></li>
             <li><a href="#"><i class="material-icons">chat</i>Chat</a></li>
-            <li><a href="/myapp/profile"><i class="material-icons">account_box</i>My Profile</a></li>
+            <li><a href="profile.html"><i class="material-icons">account_box</i>My Profile</a></li>
             {% endblock %}
         {% block content %}
         <div class="row">
@@ -33,7 +33,7 @@
                 <div id="geomap"></div>
             </div>
             <div class="col s3 grey lighten-3">
-                <form enctype="multipart/form-data" action="/myapp/loggedin/broadcast/" method="POST" class="ads-form">
+                <form enctype="multipart/form-data" action="/hello/loggedin/broadcast/" method="POST" class="ads-form">
                     {% csrf_token %}
                     <div class="row">
                          <div class="input-field col s12">

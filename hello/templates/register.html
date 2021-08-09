@@ -31,7 +31,7 @@
                     <div class="card-panel card">
                         <h3 class="cyan-text center">Register</h3>
                         <div class="row">
-                            <form id="register_form" class="col s12" action="/myapp/registered/" method="POST">
+                            <form id="register_form" class="col s12" action="/hello/registered/" method="POST">
                             {% csrf_token %}
                                 <div class="row">
                                     <div class="input-field col s6">
@@ -68,7 +68,7 @@
                                             </div>
                                 </div>
                                 <div class="input-field col s12">
-                                <p class="center">Already have an account? <a href="myapp/login/">Login</a> here</p>
+                                <p class="center">Already have an account? <a href="login.html">Login</a> here</p>
                                 </div>
                                 <div class="col s12">
                                     <button class="waves-effect waves-light btn cyan right col s12" type="submit" name="action" onsubmit="form_submit()">register</button>

@@ -128,7 +128,8 @@ def registered(request):
 
 
 def invalid_login(request):
-    return render_to_response('invalid_login.html')
+    # return render_to_response('invalid_login.html')
+    render('invalid_login.html')
 
 
 def logout(request):
