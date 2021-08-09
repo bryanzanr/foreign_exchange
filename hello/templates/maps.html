@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+	<head>
+		<title>Fly-It</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+	</head>
+	<body>
+		<form class="col s12" method="POST" action="/myapp/location/">
+                <h4>Location Details</h4>
+                <p>Address: </p>
+                <p>Latitude: </p>
+                <p>Longitude: </p>
+                <br>
+                <div class="col s12">
+                  <button class="btn waves-effect waves-light col s12" type="submit" name="action">Submit</button>
+                </div>
+            </form>
+	</body>
+</html>

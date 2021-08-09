@@ -7,6 +7,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
+        # ('myapp', '0002_ads'),
         ('hello', '0002_ads'),
     ]
 

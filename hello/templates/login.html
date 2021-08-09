@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+{% load static %}
+  <html>
+    <head>
+      <title>Login Page</title>
+      <link href="{% static 'css/material.css' %}" rel="stylesheet">
+      <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}"  media="screen,projection"/>
+      <link type="text/css" rel="stylesheet" href="{% static 'css/mycss.css' %}"  media="screen,projection"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body>
+      <script type="text/javascript" src="{% static 'js/jquery-3.2.1.js' %}"></script>
+      <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+      <div class="container">
+        <div class="row">
+          <div class="col s3">
+          </div>
+            <div class="col s6">
+              <div class="row"> 
+                <div class="col s2">
+                </div>
+                <div class="col s6"> 
+                  <div class="card-panel logo">
+                    <h3 class="cyan-text">FLY-IT</h3>
+                    <h4>by Halonesia</h4>
+                  </div>
+                </div>
+                <div class="col s4">
+                </div>
+              </div>
+              <div class="card-panel card">
+                <h3 class="cyan-text center">Login</h3>
+                <div class="row">
+                  <form class="col s12" action="/myapp/loggedin/" method="post">{% csrf_token %}
+                    <div class="row">
+                      <div class="input-field col s12">
+                        <i class="material-icons prefix">account_circle</i>
+                        <input name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" type="email" class="validate" name="email" required="" aria-required="true">
+                        <label for="{{ form.email.id_for_label }}">Email</label>
+                      </div>
+                      <div class="input-field col s12">
+                        <i class="material-icons prefix">vpn_key</i>
+                        <input name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" name="password" type="password" class="validate" required="" aria-required="true">
+                        <label for="{{ form.password.id_for_label }}">Password</label>
+                      </div>
+                    </div>
+                    <div class="col s12">
+                      <button class="btn waves-effect waves-light col s12" type="submit" name="action">Login</button>
+                    </div>
+                    <div class="input-field col s12">
+<!--                       <p class="center"><a href="#">forget your password?</a></p> -->
+                      <p class="center"><a href="myapp/register/">Register</a></p>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col s3">        
+          </div>
+        </div>
+    </body>
+  </html>

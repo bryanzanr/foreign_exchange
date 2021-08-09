@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+        {% block extra_styles %}
+        <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
+        <style>
+            #geomap{
+                width: 100%;
+                height: 768px;
+            }
+        </style>
+        {% endblock %}
+            {% block navmenu %}
+            <li class="active"><a href="/myapp/broadcast/"><i class="material-icons">send</i>Broadcast</a></li>
+            <li><a href="#"><i class="material-icons">history</i>History</a></li>
+            <li><a href="/myapp/statistic"><i class="material-icons">show_chart</i>Statistics</a></li>
+            <li><a href="#"><i class="material-icons">chat</i>Chat</a></li>
+            <li><a href="/myapp/profile"><i class="material-icons">account_box</i>My Profile</a></li>
+            {% endblock %}
+        {% block content %}
+        <div class="row">
+            <div class="col s9 white">
+                <form>
+                    <div class="form-group input-group">
+                        <input type="text" id="search_location" class="form-control" placeholder="Search location">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default get_map" type="submit">
+                                Locate
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <div id="geomap"></div>
+            </div>
+            <div class="col s3 grey lighten-3">
+                <form enctype="multipart/form-data" action="/myapp/loggedin/broadcast/" method="POST" class="ads-form">
+                    {% csrf_token %}
+                    <div class="row">
+                         <div class="input-field col s12">
+                            <input name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" type="text" class="validate" data-length="100" required>
+                            <label for="{{ form.title.id_for_label }}">Title</label>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <textarea name="{{ form.desc.name }}" id="{{ form.desc.id_for_label }}" class="materialize-textarea" data-length="300" required></textarea>
+                            <label for="{{ form.desc.id_for_label }}">Description</label>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <p>Address: <input name="{{ form.address.name }}" id="{{ form.address.id_for_label }}" type="text" class="search_addr validate" data-length="45" disabled></p>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <p>Latitude: <input name="{{ form.latitude.name }}" id="{{ form.latitude.id_for_label }}" type="text" class="search_latitude validate" data-length="30" required></p>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <p>Longitude: <input name="{{ form.longitude.name }}" id="{{ form.longitude.id_for_label }}" type="text" class="search_longitude validate" data-length="30" required></p>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <select name="{{ form.tag.name }}" id="{{ form.tag.id_for_label }}">
+                                <option value="" disabled selected>Choose your tag</option>
+                                <option value="1">Food</option>
+                                <option value="2">Fashion</option>
+                                <option value="3">Lifestyle</option>
+                                <option value="4">Property</option>
+                            </select>
+                            <label for="{{ form.tag.id_for_label }}">Tag</label>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <div class="file-field input-field">
+                            <div class="btn">
+                                <span>Picture</span>
+                                <input name="fileupload" type="file" id="fileupload" accept="image/*" data-max-size="5000" onchange="return ValidateFileUpload()">
+                            </div>
+                            <div class="file-path-wrapper">
+                                <input name="{{ form.img.name }}" id="{{ form.img.id_for_label }}" class="file-path validate" type="text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <button class="btn waves-effect waves-light" type="submit" name="action" onsubmit="form_submit()">
+                            Submit 
+                            <i class="material-icons right">send</i> 
+                        </button>
+                    </div> 
+                </form>
+            </div>
+        </div>
+        {% endblock %}
+        {% block script %}
+        <script type="text/javascript" src="{% static 'js/integrate.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/broadcast.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/validation.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/maps.js' %}"></script>
+        {% endblock %}

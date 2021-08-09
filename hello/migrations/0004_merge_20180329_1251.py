@@ -6,6 +6,8 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
+        # ('myapp', '0003_auto_20180326_1303'),
+        # ('myapp', '0002_login'),
         ('hello', '0003_auto_20180326_1303'),
         ('hello', '0002_login'),
     ]
