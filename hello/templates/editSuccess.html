@@ -2,18 +2,18 @@
 {% extends 'base.html' %}
 {% load static %}
             {% block navmenu %}
-            <li><a href="broadcast.html"><i class="material-icons">send</i>Broadcast</a></li>
+            <li><a href="/hello/broadcast"><i class="material-icons">send</i>Broadcast</a></li>
             <li><a href="#"><i class="material-icons">history</i>History</a></li>
-            <li><a href="statistic.html"><i class="material-icons">show_chart</i>Statistics</a></li>
+            <li><a href="/hello/statistic"><i class="material-icons">show_chart</i>Statistics</a></li>
             <li><a href="#"><i class="material-icons">chat</i>Chat</a></li>
-            <li><a href="profile.html"><i class="material-icons">account_box</i>My Profile</a></li>
+            <li><a href="/hello/profile"><i class="material-icons">account_box</i>My Profile</a></li>
             {% endblock %}
         {% block content %}
         <div class="container">
             <h3 class="cyan-text center">Profile Updated!</h3>
             <div class="divider"></div>
             <p>
-                <a href="profile.html">Return to My Profile</a>
+                <a href="/hello/profile">Return to My Profile</a>
             </p>
         </div>
         {% endblock %}

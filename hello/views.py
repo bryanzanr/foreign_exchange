@@ -3,7 +3,8 @@ from django.http import HttpResponse
 
 from .models import Greeting
 
-from django.shortcuts import redirect, render, render_to_response
+# from django.shortcuts import redirect, render, render_to_response
+from django.shortcuts import redirect, render
 from .forms import RegisterForm, LoginForm, ProfileForm, AdsForm
 
 import hashlib
@@ -31,6 +32,28 @@ from imgurpython.helpers.error import ImgurClientRateLimitError
 
 # from django.core.mail import send_mail
 
+import pyrebase
+
+config = {
+    "apiKey": os.environ['FLYIT_FIREBASE_API_KEY'],
+    "authDomain": os.environ['FLYIT_FIREBASE_PROJECT_ID'] + ".firebaseapp.com",
+    "databaseURL": os.environ['FLYIT_FIREBASE_DATABASE_URL'],
+    "storageBucket": os.environ['FLYIT_FIREBASE_PROJECT_ID'] + ".appspot.com",
+    # "serviceAccount": {
+    #     "type": os.environ['FLYIT_FIREBASE_TYPE'],
+    #     "project_id": os.environ['FLYIT_FIREBASE_PROJECT_ID'],
+    #     "private_key_id": os.environ['FLYIT_FIREBASE_PRIVATE_KEY_ID'],
+    #     "private_key": os.environ['FLYIT_FIREBASE_PRIVATE_KEY'],
+    #     "client_email": os.environ['FLYIT_FIREBASE_CLIENT_EMAIL'],
+    #     "client_id": os.environ['FLYIT_FIREBASE_CLIENT_ID'],
+    #     "auth_uri": os.environ['FLYIT_FIREBASE_AUTH_URL'],
+    #     "token_uri": os.environ['FLYIT_FIREBASE_TOKEN_URL'],
+    #     "auth_provider_x509_cert_url": os.environ['FLYIT_FIREBASE_AUTH_PROVIDER'],
+    #     "client_x509_cert_url": os.environ['FLYIT_FIREBASE_CERT_URL'],
+    # }
+}
+
+firebase = pyrebase.initialize_app(config)
 
 def register(request):
     if request.method == 'POST':
@@ -45,12 +68,21 @@ def register(request):
 
 
 def login(request):
+    authe = firebase.auth()
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            reg = form.save()
-            reg.save()
-            return redirect('loggedin')
+            result = form.login(authe, firebase)
+            # print(config, result)
+            if result['error'] is not None:
+                form = LoginForm()
+                return render(request, "login.html", {'form': form, 'fail': True})
+            request.session['auth'] = result['auth']
+            request.session['userData'] = result['result']
+            return render(request, 'broadcast.html', result['result'])
+            # reg = form.save()
+            # reg.save()
+            # return redirect('loggedin')
     else:
         form = LoginForm()
     return render(request, "login.html", {'form': form})
@@ -133,9 +165,14 @@ def invalid_login(request):
 
 
 def logout(request):
-    del request.session['email']
+    # del request.session['email']
+    # return render(request, "logout.html", {})
+    try:
+        del request.session['auth']
+        del request.session['userData']
+    except (MultiValueDictKeyError, KeyError) as e:
+        return render(request, "login.html", {})
     return render(request, "logout.html", {})
-
 
 def upload_image(img):
     imgur_key = os.environ['IMGUR_CLIENT_SECRET']
@@ -177,8 +214,15 @@ def create_ad_dict(form, ads):
 
 
 def broadcast(request):
-    user_temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
-    user_arr = json.loads(requests.get(user_temp).content.decode())['user']
+    # user_temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    # user_arr = json.loads(requests.get(user_temp).content.decode())['user']
+    temp = "broadcast.html"
+    page_title = 'Broadcast'
+    try:
+        user_data = request.session['userData']
+    except KeyError:
+        return redirect('register')
+    user_data['title'] = page_title
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -186,44 +230,59 @@ def broadcast(request):
         # check if image has uploaded
         # check whether it's valid:
         try:
-            img = request.FILES['fileupload'].temporary_file_path()
+            tmp = request.FILES['fileupload'].temporary_file_path()
+            img = upload_image(tmp, firebase, request.session['auth']['idToken'])
+            if img['error'] is not None:
+                raise MultiValueDictKeyError
         except MultiValueDictKeyError:
             pass
         else:
+            img = {}
+            img['url'] = ''
             if not mutate(request, img):
                 return redirect('response/', {'no_record_check': 0})
         # print(form.data)
         if form.is_valid():
             # process the data in form.cleaned_data as required
-            ads = form.save()
-            ads.author = request.session['email']
-            ads.published_date = timezone.now()
-            ads.save()
-            try:
-                temp = 'https://api.myjson.com/bins/' + os.environ['JSON_API_ID']
-                arr = json.loads(requests.get(temp).content.decode())
-                arr = arr['advertisements']
-            except KeyError:
-                arr = []
-            temp = create_ad_dict(form, ads)
-            arr.append(temp)
+            # ads = form.save()
+            # ads.author = request.session['email']
+            # ads.published_date = timezone.now()
+            # ads.save()
+            # try:
+            #     temp = 'https://api.myjson.com/bins/' + os.environ['JSON_API_ID']
+            #     arr = json.loads(requests.get(temp).content.decode())
+            #     arr = arr['advertisements']
+            # except KeyError:
+            #     arr = []
+            # temp = create_ad_dict(form, ads)
+            # arr.append(temp)
             # print(arr)
-            if tb.main(arr):
-                return redirect('response/', {'record_check': 1})
+            ads = form.save(request.session['userData']['username'], firebase, img['url'])
+            # print(ads['error'])
+            if ads['error'] is None:
+                return redirect('statistic/')
+            # if tb.main(arr):
+            #     return redirect('response/', {'record_check': 1})
             else:
-                return redirect('response/', {'no_record_check': 0})
+                form = AdsForm()
+                user_data['form'] = form
+                user_data['fail'] = True
+                return render(request, temp, user_data)
+                # return redirect('response/', {'no_record_check': 0})
     form = AdsForm()
+    user_data['form'] = form
+    return render(request, temp, user_data)
     # print(form.errors)
-    temp = "broadcast.html"
-    tmp = request.session['email']
-    page_title = 'Broadcast'
-    user_data = get_user_data(user_arr, tmp)
-    if user_data['name'] == '':
-        return redirect(register)
-    return render(request, temp, {'form': form, 'username': tmp, 'title': page_title,
-                                  'name': user_data['name'],
-                                  'merchant_name': user_data['merchant_name'],
-                                  'profile_picture': user_data['profile_picture']})
+    # temp = "broadcast.html"
+    # tmp = request.session['email']
+    # page_title = 'Broadcast'
+    # user_data = get_user_data(user_arr, tmp)
+    # if user_data['name'] == '':
+    #     return redirect(register)
+    # return render(request, temp, {'form': form, 'username': tmp, 'title': page_title,
+    #                               'name': user_data['name'],
+    #                               'merchant_name': user_data['merchant_name'],
+    #                               'profile_picture': user_data['profile_picture']})
 
 
 def index(request):
@@ -254,25 +313,31 @@ def get_user_data(arr, email):
 def show_profile(request):
     url = "profile.html"
     page_title = 'My Profile'
-    temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
-    arr = json.loads(requests.get(temp).content.decode())
-    arr = arr['user']
-    tmp = ''
+    # temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    # arr = json.loads(requests.get(temp).content.decode())
+    # arr = arr['user']
+    # tmp = ''
+    # try:
+    #     tmp = request.session['email']
+    # except KeyError:
+    #     pass
+    # user_data = get_user_data(arr, tmp)
     try:
-        tmp = request.session['email']
+        user_data = request.session['userData']
     except KeyError:
-        pass
-    user_data = get_user_data(arr, tmp)
-    if user_data['name'] == '':
-        return redirect('/hello/register/')
+    # if user_data['name'] == '':
+        render(request, "login.html", {})
+        # return redirect('/hello/register/')
         # return redirect('/myapp/register/')
-    return render(request, url, {'username': tmp, 'name': user_data['name'],
-                                 'title': page_title,
-                                 'first_name': user_data['first_name'],
-                                 'last_name': user_data['last_name'],
-                                 'merchant_name': user_data['merchant_name'],
-                                 'email': user_data['email'],
-                                 'profile_picture': user_data['profile_picture']})
+    user_data['title'] = page_title
+    return render(request, url, user_data)
+    # return render(request, url, {'username': tmp, 'name': user_data['name'],
+    #                              'title': page_title,
+    #                              'first_name': user_data['first_name'],
+    #                              'last_name': user_data['last_name'],
+    #                              'merchant_name': user_data['merchant_name'],
+    #                              'email': user_data['email'],
+    #                              'profile_picture': user_data['profile_picture']})
 
 
 def edit_data(arr, request, form):
@@ -292,40 +357,56 @@ def edit_data(arr, request, form):
 
 
 def edit_profile(request):
-    temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
-    arr = json.loads(requests.get(temp).content.decode())
+    # temp = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    # arr = json.loads(requests.get(temp).content.decode())
     if request.method == 'POST':
         form = ProfileForm(request.POST)
         if form.is_valid():
-            arr = edit_data(arr, request, form)
-            jsondata = json.dumps(arr)
-            headers = {'Content-type': 'application/json'}
+            # arr = edit_data(arr, request, form)
+            # jsondata = json.dumps(arr)
+            # headers = {'Content-type': 'application/json'}
             try:
-                req_change = requests.put(temp, data=jsondata, headers=headers)
-            except ConnectionError:
-                return redirect('response/', {'no_record_check': 0})
-            print(req_change.content.decode())
+            #     req_change = requests.put(temp, data=jsondata, headers=headers)
+            # except ConnectionError:
+            #     return redirect('response/', {'no_record_check': 0})
+            # print(req_change.content.decode())
+                temppath = request.FILES['profpic'].temporary_file_path()
+                link = upload_image(temppath, firebase, request.session['auth']['idToken'])
+                if link['error'] is not None:
+                    raise requests.exceptions.HTTPError
+            except (MultiValueDictKeyError, KeyError) as e:
+                link['url'] = ''
+            except requests.exceptions.HTTPError:
+                return redirect('register')
+            request.session['userData'] = form.save(firebase,
+                                                    request.session['auth']['localId'],
+                                                    link['url'])['result']
             # print(">> change server status complete")
             return redirect('edit_success')
     else:
-        arr = arr['user']
+        # arr = arr['user']
         form = ProfileForm()
         try:
-            tmp = request.session['email']
+            tmp = request.session['userData']
+            # tmp = request.session['email']
         except KeyError:
             tmp = ''
-        user_data = get_user_data(arr, tmp)
-        if user_data['name'] == '':
-            return redirect('/hello/register/')
+        # user_data = get_user_data(arr, tmp)
+        # if user_data['name'] == '':
+            return render(request, "login.html", {})
+            # return redirect('/hello/register/')
             # return redirect('/myapp/register/')
         url = "editProfile.html"
         page_title = 'Edit Profile'
-        return render(request, url, {'form': form, 'username': tmp,
-                                     'name': user_data['name'], 'title': page_title,
-                                     'first_name': user_data['first_name'],
-                                     'last_name': user_data['last_name'],
-                                     'merchant_name': user_data['merchant_name'],
-                                     'profile_picture': user_data['profile_picture']})
+        tmp['form'] = form
+        tmp['title'] = page_title
+        return render(request, url, tmp)
+        # return render(request, url, {'form': form, 'username': tmp,
+        #                              'name': user_data['name'], 'title': page_title,
+        #                              'first_name': user_data['first_name'],
+        #                              'last_name': user_data['last_name'],
+        #                              'merchant_name': user_data['merchant_name'],
+        #                              'profile_picture': user_data['profile_picture']})
 
 
 def edit_success(request):
@@ -352,27 +433,40 @@ def edit_success(request):
 
 def statistic(request):
     # queryset = Ads.objects.all()
-    temp = 'https://api.myjson.com/bins/' + os.environ['JSON_API_ID']
-    arr = json.loads(requests.get(temp).content.decode())
-    arr = arr['advertisements']
-    tmp = []
-    username = request.session['email']
-    for v in arr:
-        if v['author'] == username:
-            tmp.append(v)
-    print(tmp)
-    temp1 = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
-    arr1 = json.loads(requests.get(temp1).content.decode())
-    arr1 = arr1['user']
-    temp = get_user_data(arr1, username)
+    # temp = 'https://api.myjson.com/bins/' + os.environ['JSON_API_ID']
+    # arr = json.loads(requests.get(temp).content.decode())
+    # arr = arr['advertisements']
+    # tmp = []
+    # username = request.session['email']
+    # for v in arr:
+    #     if v['author'] == username:
+    #         tmp.append(v)
+    # print(tmp)
+    # temp1 = 'https://api.myjson.com/bins/' + os.environ['ARR_API_ID']
+    # arr1 = json.loads(requests.get(temp1).content.decode())
+    # arr1 = arr1['user']
+    # temp = get_user_data(arr1, username)
     page_title = "Statistics"
     url = "statistic.html"
-    return render(request, url, {'username': username, 'name': temp['name'],
-                                 'title': page_title,
-                                 'first_name': temp['first_name'],
-                                 'last_name': temp['last_name'],
-                                 'merchant_name': temp['merchant_name'],
-                                 'profile_picture': temp['profile_picture'], 'ads': tmp})
+    # return render(request, url, {'username': username, 'name': temp['name'],
+    #                              'title': page_title,
+    #                              'first_name': temp['first_name'],
+    #                              'last_name': temp['last_name'],
+    #                              'merchant_name': temp['merchant_name'],
+    #                              'profile_picture': temp['profile_picture'], 'ads': tmp})
+    try:
+        data = request.session['userData']
+    except KeyError:
+        return render(request, "login.html", {})
+    data['title'] = page_title
+    data_ads = firebase.database().get().val()['advertisements']
+    email = request.session['auth']['email']
+    ads = []
+    for v in data_ads:
+        if data_ads[v]['author'] == email:
+            ads.append(data_ads[v])
+    data['ads'] = ads
+    return render(request, url, data)
 # def upload(request):
 #     return render(request, "uploadfileapp/user_form.html", {})
 
