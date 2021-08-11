@@ -3,7 +3,7 @@ gunicorn
 django-heroku
 mysqlclient
 
-jwt
+PyJWT
 
 psycopg2
 psycopg2-binary

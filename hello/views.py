@@ -56,12 +56,20 @@ config = {
 firebase = pyrebase.initialize_app(config)
 
 def register(request):
+    authe = firebase.auth()
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            reg = form.save()
-            reg.save()
-            return redirect('loggedin')
+            # reg = form.save()
+            # reg.save()
+            # return redirect('loggedin')
+            result = form.register(authe, firebase)
+            if result['error'] is not None:
+                form = RegisterForm()
+                return render(request, "register.html", {'form': form,'fail': True})
+            request.session['auth'] = result['auth']
+            request.session['userData'] = result['result']
+            return render(request, 'broadcast.html', result['result'])
     else:
         form = RegisterForm()
     return render(request, "register.html", {'form': form})
@@ -240,7 +248,8 @@ def broadcast(request):
             img = {}
             img['url'] = ''
             if not mutate(request, img):
-                return redirect('response/', {'no_record_check': 0})
+                return render(request, "index.html", {})
+                # return redirect('response/', {'no_record_check': 0})
         # print(form.data)
         if form.is_valid():
             # process the data in form.cleaned_data as required
@@ -260,7 +269,8 @@ def broadcast(request):
             ads = form.save(request.session['userData']['username'], firebase, img['url'])
             # print(ads['error'])
             if ads['error'] is None:
-                return redirect('statistic/')
+                # return redirect('statistic/')
+                return render(request, "statistic.html", {})
             # if tb.main(arr):
             #     return redirect('response/', {'record_check': 1})
             else:
@@ -377,12 +387,13 @@ def edit_profile(request):
             except (MultiValueDictKeyError, KeyError) as e:
                 link['url'] = ''
             except requests.exceptions.HTTPError:
-                return redirect('register')
+                return render(request, 'register.html', {})
             request.session['userData'] = form.save(firebase,
                                                     request.session['auth']['localId'],
                                                     link['url'])['result']
             # print(">> change server status complete")
-            return redirect('edit_success')
+            # return redirect('edit_success')
+            return render(request, 'editSuccess.html', {})
     else:
         # arr = arr['user']
         form = ProfileForm()
